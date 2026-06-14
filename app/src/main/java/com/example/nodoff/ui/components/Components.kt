@@ -133,7 +133,7 @@ fun SettingSectionHeader(text: String) {
 }
 
 @Composable
-fun AppChip(name: String) {
+fun AppChip(name: String, onRemoveClick: () -> Unit) {
     Row(
         modifier = Modifier
             .border(1.dp, Color(0xFF333333), RoundedCornerShape(4.dp))
@@ -142,7 +142,14 @@ fun AppChip(name: String) {
     ) {
         Text(text = name, color = OffWhite, fontSize = 10.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.width(4.dp))
-        Icon(Icons.Default.Close, contentDescription = null, tint = LowContrastGrey, modifier = Modifier.size(12.dp))
+        Icon(
+            imageVector = Icons.Default.Close,
+            contentDescription = "Remove",
+            tint = LowContrastGrey,
+            modifier = Modifier
+                .size(12.dp)
+                .clickable { onRemoveClick() }
+        )
     }
 }
 

@@ -69,6 +69,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         initialValue = 0
     )
 
+    val automationApps: StateFlow<Set<String>> = repository.automationAppsFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptySet()
+    )
+
     fun setPauseMedia(value: Boolean) {
         viewModelScope.launch {
             repository.setPauseMedia(value)
@@ -96,6 +102,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun setPollingRate(value: Int) {
         viewModelScope.launch {
             repository.setPollingRate(value)
+        }
+    }
+
+    fun addAutomationApp(packageName: String) {
+        viewModelScope.launch {
+            repository.addAutomationApp(packageName)
+        }
+    }
+
+    fun removeAutomationApp(packageName: String) {
+        viewModelScope.launch {
+            repository.removeAutomationApp(packageName)
         }
     }
 }

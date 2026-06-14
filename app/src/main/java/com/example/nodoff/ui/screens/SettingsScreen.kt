@@ -1,15 +1,25 @@
 package com.example.nodoff.ui.screens
 
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -18,10 +28,170 @@ import com.example.nodoff.ui.components.*
 import com.example.nodoff.ui.theme.*
 import com.example.nodoff.ui.viewmodel.MainViewModel
 
+private fun getAppLabel(context: Context, packageName: String): String {
+    val pm = context.packageManager
+    return try {
+        val info = pm.getApplicationInfo(packageName, 0)
+        pm.getApplicationLabel(info).toString()
+    } catch (e: PackageManager.NameNotFoundException) {
+        packageName.split(".").last().uppercase()
+    }
+}
+
+data class AppInfoItem(val label: String, val packageName: String)
+
+@Composable
+fun AppPickerDialog(
+    onDismiss: () -> Unit,
+    onAppSelected: (String) -> Unit
+) {
+    val context = LocalContext.current
+    val packageManager = context.packageManager
+    
+    val installedApps = remember {
+        val intent = Intent(Intent.ACTION_MAIN, null).apply {
+            addCategory(Intent.CATEGORY_LAUNCHER)
+        }
+        packageManager.queryIntentActivities(intent, 0).map { resolveInfo ->
+            val label = resolveInfo.loadLabel(packageManager).toString()
+            val packageName = resolveInfo.activityInfo.packageName
+            AppInfoItem(label, packageName)
+        }.distinctBy { it.packageName }.sortedBy { it.label }
+    }
+    
+    var searchQuery by remember { mutableStateOf("") }
+    val filteredApps = installedApps.filter {
+        it.label.contains(searchQuery, ignoreCase = true) ||
+        it.packageName.contains(searchQuery, ignoreCase = true)
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Column {
+                Text(
+                    text = "SELECT APPLICATION",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = OffWhite,
+                    letterSpacing = 1.sp
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = { Text("Search apps...", color = LowContrastGrey, fontSize = 14.sp) },
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFF1E1E1E),
+                        unfocusedContainerColor = Color(0xFF1E1E1E),
+                        disabledContainerColor = Color(0xFF1E1E1E),
+                        focusedTextColor = OffWhite,
+                        unfocusedTextColor = OffWhite,
+                        focusedIndicatorColor = BrushedCopper,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                )
+            }
+        },
+        text = {
+            Box(modifier = Modifier.height(300.dp).fillMaxWidth()) {
+                if (filteredApps.isEmpty()) {
+                    Text(
+                        text = "No apps found",
+                        color = LowContrastGrey,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else {
+                    LazyColumn {
+                        items(filteredApps) { app ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onAppSelected(app.packageName) }
+                                    .padding(vertical = 12.dp, horizontal = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text(text = app.label, color = OffWhite, fontWeight = FontWeight.Medium)
+                                    Text(text = app.packageName, color = LowContrastGrey, fontSize = 10.sp)
+                                }
+                            }
+                            HorizontalDivider(color = Color(0xFF2A2A2A), thickness = 0.5.dp)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("CLOSE", color = LowContrastGrey)
+            }
+        },
+        containerColor = Color(0xFF151819),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(16.dp))
+    )
+}
+
 @Composable
 fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
+    val context = LocalContext.current
     val eyeCloseDelayFlow by viewModel.eyeCloseDelay.collectAsState()
     val pollingRateFlow by viewModel.pollingRate.collectAsState()
+    val automationApps by viewModel.automationApps.collectAsState()
+
+    var showActivationDelayInfo by remember { mutableStateOf(false) }
+    var showBatterySaverInfo by remember { mutableStateOf(false) }
+    var showAppPicker by remember { mutableStateOf(false) }
+
+    if (showActivationDelayInfo) {
+        AlertDialog(
+            onDismissRequest = { showActivationDelayInfo = false },
+            title = { Text(text = "Activation Delay", color = OffWhite) },
+            text = { Text(text = "How many seconds your eyes must remain completely closed before the app triggers.", color = LowContrastGrey) },
+            confirmButton = {
+                TextButton(onClick = { showActivationDelayInfo = false }) {
+                    Text(text = "OK", color = BrushedCopper)
+                }
+            },
+            containerColor = Color(0xFF151819),
+            titleContentColor = OffWhite,
+            textContentColor = OffWhite,
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(16.dp))
+        )
+    }
+
+    if (showBatterySaverInfo) {
+        AlertDialog(
+            onDismissRequest = { showBatterySaverInfo = false },
+            title = { Text(text = "Battery Saver Mode", color = OffWhite) },
+            text = { Text(text = "How frequently the camera checks your eyes. Slower checks save battery but react slower.", color = LowContrastGrey) },
+            confirmButton = {
+                TextButton(onClick = { showBatterySaverInfo = false }) {
+                    Text(text = "OK", color = BrushedCopper)
+                }
+            },
+            containerColor = Color(0xFF151819),
+            titleContentColor = OffWhite,
+            textContentColor = OffWhite,
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(16.dp))
+        )
+    }
+
+    if (showAppPicker) {
+        AppPickerDialog(
+            onDismiss = { showAppPicker = false },
+            onAppSelected = { pkg ->
+                viewModel.addAutomationApp(pkg)
+                showAppPicker = false
+            }
+        )
+    }
 
     Scaffold(
         bottomBar = { BottomNavBar(selectedTab = 2, onTabSelected = onNavigate) },
@@ -36,7 +206,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = { onNavigate(0) }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = BrushedCopper)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = BrushedCopper)
                     }
                     Text(
                         text = "SETTINGS",
@@ -53,7 +223,24 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
             item { SettingSectionHeader("TUNING") }
             item {
                 NodOffCard {
-                    Text(text = "Eye-Close Delay", color = OffWhite)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = "Activation Delay", color = OffWhite)
+                        IconButton(
+                            onClick = { showActivationDelayInfo = true },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = "Info",
+                                tint = LowContrastGrey,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
                     Text(text = "Time before restorative alert triggers.", color = LowContrastGrey, fontSize = 12.sp)
                     var sliderValue by remember(eyeCloseDelayFlow) { mutableStateOf(eyeCloseDelayFlow) }
                     Slider(
@@ -78,7 +265,24 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
 
             item {
                 NodOffCard {
-                    Text(text = "Camera Polling Rate", color = OffWhite)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = "Battery Saver Mode", color = OffWhite)
+                        IconButton(
+                            onClick = { showBatterySaverInfo = true },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = "Info",
+                                tint = LowContrastGrey,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
                     Spacer(modifier = Modifier.height(8.dp))
                     SegmentedButton(
                         options = listOf("CONTINUOUS", "2S", "5S"),
@@ -94,13 +298,31 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                 NodOffCard {
                     Text(text = "Auto-Start Monitor with Apps", color = OffWhite)
                     Spacer(modifier = Modifier.height(12.dp))
-                    Row {
-                        AppChip("YOUTUBE")
-                        Spacer(modifier = Modifier.width(8.dp))
-                        AppChip("NETFLIX")
+                    
+                    if (automationApps.isEmpty()) {
+                        Text(text = "No apps selected", color = LowContrastGrey, fontSize = 12.sp)
+                    } else {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            automationApps.forEach { pkg ->
+                                AppChip(
+                                    name = getAppLabel(context, pkg),
+                                    onRemoveClick = { viewModel.removeAutomationApp(pkg) }
+                                )
+                            }
+                        }
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-                    NodOffButton(text = "+ ADD APP", onClick = {}, modifier = Modifier.fillMaxWidth(), isPrimary = false)
+                    NodOffButton(
+                        text = "+ ADD APP",
+                        onClick = { showAppPicker = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        isPrimary = false
+                    )
                 }
                 Spacer(modifier = Modifier.height(32.dp))
             }

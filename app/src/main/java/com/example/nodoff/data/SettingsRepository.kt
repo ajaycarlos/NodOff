@@ -21,6 +21,7 @@ class SettingsRepository(private val context: Context) {
         val DISCONNECT_BLUETOOTH = booleanPreferencesKey("disconnect_bluetooth")
         val EYE_CLOSE_DELAY = floatPreferencesKey("eye_close_delay")
         val POLLING_RATE = intPreferencesKey("polling_rate")
+        val AUTOMATION_APPS = stringSetPreferencesKey("automation_apps")
     }
 
     val pauseMediaFlow: Flow<Boolean> = dataStore.data.map { preferences ->
@@ -41,6 +42,10 @@ class SettingsRepository(private val context: Context) {
 
     val pollingRateFlow: Flow<Int> = dataStore.data.map { preferences ->
         preferences[PreferencesKeys.POLLING_RATE] ?: 0
+    }
+
+    val automationAppsFlow: Flow<Set<String>> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.AUTOMATION_APPS] ?: emptySet()
     }
 
     suspend fun setPauseMedia(value: Boolean) {
@@ -70,6 +75,20 @@ class SettingsRepository(private val context: Context) {
     suspend fun setPollingRate(value: Int) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.POLLING_RATE] = value
+        }
+    }
+
+    suspend fun addAutomationApp(packageName: String) {
+        dataStore.edit { preferences ->
+            val currentApps = preferences[PreferencesKeys.AUTOMATION_APPS] ?: emptySet()
+            preferences[PreferencesKeys.AUTOMATION_APPS] = currentApps + packageName
+        }
+    }
+
+    suspend fun removeAutomationApp(packageName: String) {
+        dataStore.edit { preferences ->
+            val currentApps = preferences[PreferencesKeys.AUTOMATION_APPS] ?: emptySet()
+            preferences[PreferencesKeys.AUTOMATION_APPS] = currentApps - packageName
         }
     }
 }
