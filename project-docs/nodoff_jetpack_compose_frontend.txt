@@ -1,0 +1,476 @@
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+// --- THEME ---
+
+private val DeepBlack = Color(0xFF080808)
+private val DarkSlateGrey = Color(0xFF1A1D1E)
+private val BrushedCopper = Color(0xFFB76E79)
+private val OffWhite = Color(0xFFF2F2F2)
+private val LowContrastGrey = Color(0xFF888888)
+
+@Composable
+fun NodOffTheme(content: @Composable () -> Unit) {
+    val colorScheme = darkColorScheme(
+        background = DeepBlack,
+        surface = DarkSlateGrey,
+        primary = BrushedCopper,
+        onBackground = OffWhite,
+        onSurface = OffWhite,
+        onPrimary = OffWhite,
+        surfaceVariant = Color(0xFF2A2A2A),
+        outline = Color(0xFF333333)
+    )
+
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography(), // Standard Material3 typography or custom
+        content = content
+    )
+}
+
+// --- COMPONENTS ---
+
+@Composable
+fun NodOffButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    isPrimary: Boolean = true
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier.height(48.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isPrimary) BrushedCopper else DarkSlateGrey,
+            contentColor = OffWhite
+        ),
+        shape = RoundedCornerShape(12.dp),
+        border = if (!isPrimary) BorderStroke(1.dp, Color(0xFF333333)) else null
+    ) {
+        Text(
+            text = text.uppercase(),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.sp
+        )
+    }
+}
+
+@Composable
+fun NodOffCard(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(
+        modifier = modifier
+            .background(DarkSlateGrey, RoundedCornerShape(12.dp))
+            .padding(16.dp),
+        content = content
+    )
+}
+
+// --- SCREENS ---
+
+@Composable
+fun OnboardingScreen(onNavigateToDashboard: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(DeepBlack)
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        // Logo Placeholder (Simulating the NodOff Combination Mark)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(top = 64.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .background(Color.Transparent)
+            ) {
+                // Drawing of the 'N' + Pause icon would go here in actual resources
+                Icon(
+                    imageVector = Icons.Default.PauseCircleFilled,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    tint = BrushedCopper
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "NodOff",
+                color = OffWhite,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 2.sp
+            )
+        }
+
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = "REQUIRED PROTOCOLS",
+                color = LowContrastGrey,
+                style = MaterialTheme.typography.labelSmall,
+                letterSpacing = 1.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            NodOffCard {
+                ProtocolItem(icon = Icons.Default.Videocam, title = "Camera Access", subtitle = "VISION SYSTEM")
+                Divider(color = Color(0xFF2A2A2A), thickness = 1.dp, modifier = Modifier.padding(vertical = 12.dp))
+                ProtocolItem(icon = Icons.Default.Folder, title = "Media Access", subtitle = "STORAGE MODULE")
+                Divider(color = Color(0xFF2A2A2A), thickness = 1.dp, modifier = Modifier.padding(vertical = 12.dp))
+                ProtocolItem(icon = Icons.Default.Security, title = "Device Admin", subtitle = "SECURITY LAYER")
+            }
+        }
+
+        NodOffButton(
+            text = "Initialize System",
+            onClick = onNavigateToDashboard,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+fun ProtocolItem(icon: ImageVector, title: String, subtitle: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, contentDescription = null, tint = BrushedCopper, modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(text = title, color = OffWhite, fontWeight = FontWeight.Medium)
+                Text(text = subtitle, color = LowContrastGrey, fontSize = 10.sp)
+            }
+        }
+        Text(
+            text = "GRANT",
+            color = BrushedCopper,
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp,
+            modifier = Modifier.clickable { /* Grant Permission */ }
+        )
+    }
+}
+
+@Composable
+fun DashboardScreen() {
+    var isMonitoring by remember { mutableStateOf(false) }
+
+    Scaffold(
+        bottomBar = { BottomNavBar(selectedTab = 0) },
+        containerColor = DeepBlack
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Default.Menu, contentDescription = "Menu", tint = OffWhite)
+                Text(text = "NodOff", color = BrushedCopper, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
+                Icon(Icons.Default.AccountCircle, contentDescription = "Profile", tint = OffWhite)
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // System State Card
+            NodOffCard(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "SYSTEM STATE",
+                    color = LowContrastGrey,
+                    fontSize = 10.sp,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+                Text(
+                    text = if (isMonitoring) "EYES CLOSED" else "STANDBY",
+                    color = if (isMonitoring) BrushedCopper else OffWhite,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 8.dp)
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "FREQ: 12.3Hz", color = LowContrastGrey, fontSize = 10.sp)
+                    Text(text = "CONF: 98.8%", color = LowContrastGrey, fontSize = 10.sp)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            // Start Monitoring Button
+            IconButton(
+                onClick = { isMonitoring = !isMonitoring },
+                modifier = Modifier
+                    .size(120.dp)
+                    .border(2.dp, BrushedCopper, RoundedCornerShape(100.dp))
+                    .padding(8.dp)
+            ) {
+                Icon(
+                    imageVector = if (isMonitoring) Icons.Default.Pause else Icons.Default.PowerSettingsNew,
+                    contentDescription = "Power",
+                    tint = BrushedCopper,
+                    modifier = Modifier.size(48.dp)
+                )
+            }
+            Text(
+                text = if (isMonitoring) "STOP MONITORING" else "START MONITORING",
+                color = BrushedCopper,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            // Sleep Actions
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "SLEEP ACTIONS",
+                    color = LowContrastGrey,
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                NodOffCard {
+                    ActionToggle(title = "Pause Media", icon = Icons.Default.Pause)
+                    Divider(color = Color(0xFF2A2A2A), modifier = Modifier.padding(vertical = 12.dp))
+                    ActionToggle(title = "Turn Off Screen", icon = Icons.Default.Smartphone)
+                    Divider(color = Color(0xFF2A2A2A), modifier = Modifier.padding(vertical = 12.dp))
+                    ActionToggle(title = "Disconnect Bluetooth", icon = Icons.Default.BluetoothDisabled)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ActionToggle(title: String, icon: ImageVector) {
+    var checked by remember { mutableStateOf(true) }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, contentDescription = null, tint = LowContrastGrey, modifier = Modifier.size(20.dp))
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(text = title, color = OffWhite)
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = { checked = it },
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = OffWhite,
+                checkedTrackColor = BrushedCopper,
+                uncheckedThumbColor = LowContrastGrey,
+                uncheckedTrackColor = DarkSlateGrey
+            )
+        )
+    }
+}
+
+@Composable
+fun SettingsScreen() {
+    Scaffold(
+        bottomBar = { BottomNavBar(selectedTab = 2) },
+        containerColor = DeepBlack
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .padding(20.dp)
+        ) {
+            item {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = BrushedCopper)
+                    Text(
+                        text = "SETTINGS",
+                        color = OffWhite,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Spacer(modifier = Modifier.height(32.dp))
+            }
+
+            item { SettingSectionHeader("TUNING") }
+            item {
+                NodOffCard {
+                    Text(text = "Eye-Close Delay", color = OffWhite)
+                    Text(text = "Time before restorative alert triggers.", color = LowContrastGrey, fontSize = 12.sp)
+                    var sliderValue by remember { mutableStateOf(15f) }
+                    Slider(
+                        value = sliderValue,
+                        onValueChange = { sliderValue = it },
+                        valueRange = 3f..60f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = BrushedCopper,
+                            activeTrackColor = BrushedCopper,
+                            inactiveTrackColor = Color(0xFF2A2A2A)
+                        )
+                    )
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(text = "3S", color = LowContrastGrey, fontSize = 10.sp)
+                        Text(text = "15S", color = LowContrastGrey, fontSize = 10.sp)
+                        Text(text = "60S", color = LowContrastGrey, fontSize = 10.sp)
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
+                NodOffCard {
+                    Text(text = "Camera Polling Rate", color = OffWhite)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    SegmentedButton(options = listOf("CONTINUOUS", "2S", "5S"), selectedIndex = 0)
+                }
+                Spacer(modifier = Modifier.height(32.dp))
+            }
+
+            item { SettingSectionHeader("AUTOMATION") }
+            item {
+                NodOffCard {
+                    Text(text = "Auto-Start Monitor with Apps", color = OffWhite)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row {
+                        AppChip("YOUTUBE")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        AppChip("NETFLIX")
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    NodOffButton(text = "+ ADD APP", onClick = {}, modifier = Modifier.fillMaxWidth(), isPrimary = false)
+                }
+                Spacer(modifier = Modifier.height(32.dp))
+            }
+
+            item { SettingSectionHeader("APPEARANCE") }
+            item {
+                NodOffCard {
+                    Text(text = "Theme", color = OffWhite)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    SegmentedButton(options = listOf("SYSTEM", "LIGHT", "DARK"), selectedIndex = 2)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SettingSectionHeader(text: String) {
+    Text(
+        text = text,
+        color = LowContrastGrey,
+        style = MaterialTheme.typography.labelSmall,
+        modifier = Modifier.padding(bottom = 12.dp)
+    )
+}
+
+@Composable
+fun AppChip(name: String) {
+    Row(
+        modifier = Modifier
+            .border(1.dp, Color(0xFF333333), RoundedCornerShape(4.dp))
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = name, color = OffWhite, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.width(4.dp))
+        Icon(Icons.Default.Close, contentDescription = null, tint = LowContrastGrey, modifier = Modifier.size(12.dp))
+    }
+}
+
+@Composable
+fun SegmentedButton(options: List<String>, selectedIndex: Int) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, Color(0xFF333333), RoundedCornerShape(4.dp))
+            .height(40.dp)
+    ) {
+        options.forEachIndexed { index, option ->
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(if (index == selectedIndex) BrushedCopper else Color.Transparent)
+                    .clickable { /* Update index */ },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = option,
+                    color = if (index == selectedIndex) OffWhite else LowContrastGrey,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            if (index < options.size - 1) {
+                Divider(modifier = Modifier.fillMaxHeight().width(1.dp), color = Color(0xFF333333))
+            }
+        }
+    }
+}
+
+@Composable
+fun BottomNavBar(selectedTab: Int) {
+    NavigationBar(
+        containerColor = DarkSlateGrey,
+        tonalElevation = 0.dp,
+        modifier = Modifier.height(80.dp)
+    ) {
+        val items = listOf("DASHBOARD", "HISTORY", "SETTINGS")
+        val icons = listOf(Icons.Default.Speed, Icons.Default.BarChart, Icons.Default.Settings)
+        
+        items.forEachIndexed { index, item ->
+            NavigationBarItem(
+                selected = selectedTab == index,
+                onClick = { /* Navigate */ },
+                icon = { Icon(icons[index], contentDescription = item) },
+                label = { Text(item, style = MaterialTheme.typography.labelSmall) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = BrushedCopper,
+                    selectedTextColor = BrushedCopper,
+                    unselectedIconColor = LowContrastGrey,
+                    unselectedTextColor = LowContrastGrey,
+                    indicatorColor = Color.Transparent
+                )
+            )
+        }
+    }
+}
