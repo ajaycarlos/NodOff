@@ -24,7 +24,7 @@ import com.example.nodoff.ui.viewmodel.MainViewModel
 
 @Composable
 fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
-    var isMonitoring by remember { mutableStateOf(false) }
+    val isMonitoring by viewModel.isMonitoring.collectAsState()
     val pauseMedia by viewModel.pauseMedia.collectAsState()
     val turnOffScreen by viewModel.turnOffScreen.collectAsState()
     val disconnectBluetooth by viewModel.disconnectBluetooth.collectAsState()
@@ -88,7 +88,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
 
             // Start Monitoring Button
             IconButton(
-                onClick = { isMonitoring = !isMonitoring },
+                onClick = { viewModel.toggleMonitoring() },
                 modifier = Modifier
                     .size(120.dp)
                     .border(2.dp, BrushedCopper, RoundedCornerShape(100.dp))
