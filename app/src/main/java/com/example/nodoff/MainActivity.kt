@@ -49,7 +49,12 @@ class MainActivity : ComponentActivity() {
                         val componentName = android.content.ComponentName.unflattenFromString(it)
                         componentName != null && componentName.packageName == context.packageName
                     }
-                    return hasCamera && hasNotification
+
+                    val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? android.app.admin.DevicePolicyManager
+                    val adminComponent = android.content.ComponentName(context, com.example.nodoff.service.NodOffDeviceAdminReceiver::class.java)
+                    val hasAdmin = dpm?.isAdminActive(adminComponent) == true
+
+                    return hasCamera && hasNotification && hasAdmin
                 }
 
                 var currentScreen by remember {

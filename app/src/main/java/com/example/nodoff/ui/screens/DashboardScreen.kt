@@ -21,10 +21,12 @@ import com.example.nodoff.ui.components.BottomNavBar
 import com.example.nodoff.ui.components.NodOffCard
 import com.example.nodoff.ui.theme.*
 import com.example.nodoff.ui.viewmodel.MainViewModel
+import com.example.nodoff.camera.EyeStatus
 
 @Composable
 fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
     val isMonitoring by viewModel.isMonitoring.collectAsState()
+    val eyeTrackingState by viewModel.eyeTrackingState.collectAsState()
     val pauseMedia by viewModel.pauseMedia.collectAsState()
     val turnOffScreen by viewModel.turnOffScreen.collectAsState()
     val disconnectBluetooth by viewModel.disconnectBluetooth.collectAsState()
@@ -68,9 +70,19 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                     fontSize = 10.sp,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
+                val statusText = if (!isMonitoring) {
+                    "STANDBY"
+                } else {
+                    when (eyeTrackingState.status) {
+                        EyeStatus.IDLE -> "IDLE"
+                        EyeStatus.EYES_OPEN -> "EYES OPEN"
+                        EyeStatus.EYES_CLOSED -> "EYES CLOSED"
+                    }
+                }
+                val statusColor = if (isMonitoring && eyeTrackingState.status == EyeStatus.EYES_CLOSED) BrushedCopper else OffWhite
                 Text(
-                    text = if (isMonitoring) "EYES CLOSED" else "STANDBY",
-                    color = if (isMonitoring) BrushedCopper else OffWhite,
+                    text = statusText,
+                    color = statusColor,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 8.dp)

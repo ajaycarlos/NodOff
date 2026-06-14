@@ -13,10 +13,22 @@ import androidx.lifecycle.lifecycleScope
 import com.example.nodoff.R
 import com.example.nodoff.camera.EyeStatus
 import com.example.nodoff.camera.EyeTrackerManager
+import com.example.nodoff.camera.EyeTrackingState
 import com.example.nodoff.data.SettingsRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class NodOffService : LifecycleService() {
+
+    companion object {
+        private val _trackingState = MutableStateFlow(EyeTrackingState(EyeStatus.IDLE, 0L))
+        val trackingState = _trackingState.asStateFlow()
+
+        fun updateTrackingState(state: EyeTrackingState) {
+            _trackingState.value = state
+        }
+    }
 
     private lateinit var settingsRepository: SettingsRepository
     private lateinit var actionExecutor: ActionExecutor
@@ -88,6 +100,7 @@ class NodOffService : LifecycleService() {
 
             // Collect and handle changes in eye status
             eyeTrackerManager.state.collect { state ->
+                updateTrackingState(state)
                 if (state.status == EyeStatus.EYES_CLOSED) {
                     if (state.closedDurationMs >= thresholdMs) {
                         if (!isActionTriggered) {
@@ -107,6 +120,7 @@ class NodOffService : LifecycleService() {
 
     override fun onDestroy() {
         eyeTrackerManager.stop()
+        updateTrackingState(EyeTrackingState(EyeStatus.IDLE, 0L))
         isServiceStarted = false
         super.onDestroy()
     }

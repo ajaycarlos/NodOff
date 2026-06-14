@@ -1,6 +1,8 @@
 package com.example.nodoff.ui.screens
 
 import android.Manifest
+import android.app.admin.DevicePolicyManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,8 +12,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.*
@@ -29,6 +34,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.example.nodoff.R
+import com.example.nodoff.service.NodOffDeviceAdminReceiver
 import com.example.nodoff.ui.components.NodOffButton
 import com.example.nodoff.ui.components.NodOffCard
 import com.example.nodoff.ui.components.ProtocolItem
@@ -45,9 +51,70 @@ private fun isNotificationListenerEnabled(context: Context): Boolean {
     val enabledListeners = Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")
     val packageName = context.packageName
     return enabledListeners != null && enabledListeners.split(":").any {
-        val componentName = android.content.ComponentName.unflattenFromString(it)
+        val componentName = ComponentName.unflattenFromString(it)
         componentName != null && componentName.packageName == packageName
     }
+}
+
+private fun isDeviceAdminActive(context: Context): Boolean {
+    val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager ?: return false
+    val adminComponent = ComponentName(context, NodOffDeviceAdminReceiver::class.java)
+    return dpm.isAdminActive(adminComponent)
+}
+
+@Composable
+fun PermissionExplanationDialog(
+    title: String,
+    description: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = title.uppercase(),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = OffWhite,
+                letterSpacing = 1.sp
+            )
+        },
+        text = {
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = LowContrastGrey
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                colors = ButtonDefaults.textButtonColors(contentColor = BrushedCopper)
+            ) {
+                Text(
+                    text = "PROCEED",
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                colors = ButtonDefaults.textButtonColors(contentColor = LowContrastGrey)
+            ) {
+                Text(
+                    text = "CANCEL",
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 1.sp
+                )
+            }
+        },
+        containerColor = Color(0xEE1A1D1E),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(16.dp))
+    )
 }
 
 @Composable
@@ -55,6 +122,11 @@ fun OnboardingScreen(onNavigateToDashboard: () -> Unit) {
     val context = LocalContext.current
     var isCameraGranted by remember { mutableStateOf(hasCameraPermission(context)) }
     var isNotificationGranted by remember { mutableStateOf(isNotificationListenerEnabled(context)) }
+    var isDeviceAdminGranted by remember { mutableStateOf(isDeviceAdminActive(context)) }
+
+    var showCameraExplanation by remember { mutableStateOf(false) }
+    var showNotificationExplanation by remember { mutableStateOf(false) }
+    var showDeviceAdminExplanation by remember { mutableStateOf(false) }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -71,12 +143,63 @@ fun OnboardingScreen(onNavigateToDashboard: () -> Unit) {
             if (event == Lifecycle.Event.ON_RESUME) {
                 isCameraGranted = hasCameraPermission(context)
                 isNotificationGranted = isNotificationListenerEnabled(context)
+                isDeviceAdminGranted = isDeviceAdminActive(context)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
+    }
+
+    if (showCameraExplanation) {
+        PermissionExplanationDialog(
+            title = "Camera Access Required",
+            description = "NodOff needs Camera access to run the offline vision model. Video is never recorded, saved, or uploaded to any server.",
+            onConfirm = {
+                showCameraExplanation = false
+                cameraLauncher.launch(Manifest.permission.CAMERA)
+            },
+            onDismiss = { showCameraExplanation = false }
+        )
+    }
+
+    if (showNotificationExplanation) {
+        PermissionExplanationDialog(
+            title = "Notification Listener Required",
+            description = "NodOff needs Notification Listener access to detect active background media playback and issue pause commands when you nod off.",
+            onConfirm = {
+                showNotificationExplanation = false
+                try {
+                    val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    val intent = Intent(Settings.ACTION_SETTINGS)
+                    context.startActivity(intent)
+                }
+            },
+            onDismiss = { showNotificationExplanation = false }
+        )
+    }
+
+    if (showDeviceAdminExplanation) {
+        PermissionExplanationDialog(
+            title = "Device Admin Required",
+            description = "NodOff needs Device Administrator privileges to lock and turn off the screen using the DevicePolicyManager.lockNow() function when sleep is detected.",
+            onConfirm = {
+                showDeviceAdminExplanation = false
+                val adminComponent = ComponentName(context, NodOffDeviceAdminReceiver::class.java)
+                val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+                    putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponent)
+                    putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Required to turn off and lock the screen when sleep is detected.")
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                context.startActivity(intent)
+            },
+            onDismiss = { showDeviceAdminExplanation = false }
+        )
     }
 
     Column(
@@ -124,7 +247,7 @@ fun OnboardingScreen(onNavigateToDashboard: () -> Unit) {
                     subtitle = "VISION SYSTEM",
                     isGranted = isCameraGranted,
                     onGrantClick = {
-                        cameraLauncher.launch(Manifest.permission.CAMERA)
+                        showCameraExplanation = true
                     }
                 )
                 Divider(color = Color(0xFF2A2A2A), thickness = 1.dp, modifier = Modifier.padding(vertical = 12.dp))
@@ -134,15 +257,17 @@ fun OnboardingScreen(onNavigateToDashboard: () -> Unit) {
                     subtitle = "ALERT SYSTEM / MEDIA CONTROL",
                     isGranted = isNotificationGranted,
                     onGrantClick = {
-                        try {
-                            val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).apply {
-                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            }
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            val intent = Intent(Settings.ACTION_SETTINGS)
-                            context.startActivity(intent)
-                        }
+                        showNotificationExplanation = true
+                    }
+                )
+                Divider(color = Color(0xFF2A2A2A), thickness = 1.dp, modifier = Modifier.padding(vertical = 12.dp))
+                ProtocolItem(
+                    icon = Icons.Default.Lock,
+                    title = "Device Admin",
+                    subtitle = "SECURITY SYSTEM LOCK",
+                    isGranted = isDeviceAdminGranted,
+                    onGrantClick = {
+                        showDeviceAdminExplanation = true
                     }
                 )
             }
@@ -151,7 +276,7 @@ fun OnboardingScreen(onNavigateToDashboard: () -> Unit) {
         NodOffButton(
             text = "Initialize System",
             onClick = {
-                if (isCameraGranted && isNotificationGranted) {
+                if (isCameraGranted && isNotificationGranted && isDeviceAdminGranted) {
                     onNavigateToDashboard()
                 } else {
                     Toast.makeText(

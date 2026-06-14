@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nodoff.data.SettingsRepository
+import com.example.nodoff.camera.EyeTrackingState
 import com.example.nodoff.service.NodOffService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,6 +20,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _isMonitoring = MutableStateFlow(false)
     val isMonitoring: StateFlow<Boolean> = _isMonitoring.asStateFlow()
+
+    val eyeTrackingState: StateFlow<EyeTrackingState> = NodOffService.trackingState
 
     fun toggleMonitoring() {
         val context = getApplication<Application>().applicationContext
