@@ -102,6 +102,12 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
+    suspend fun setAutomationApps(packages: Set<String>) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.AUTOMATION_APPS] = packages
+        }
+    }
+
     suspend fun setThemePreference(value: Int) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.THEME_PREFERENCE] = value

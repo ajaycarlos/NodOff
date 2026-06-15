@@ -4,7 +4,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -23,7 +25,6 @@ import com.example.nodoff.ui.components.NodOffCard
 import com.example.nodoff.ui.theme.*
 import com.example.nodoff.ui.viewmodel.MainViewModel
 import com.example.nodoff.camera.EyeStatus
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
@@ -82,10 +83,76 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
     var showPrivacyDialog by remember { mutableStateOf(false) }
     var showBugDialog by remember { mutableStateOf(false) }
     var showBottomSheet by remember { mutableStateOf(false) }
+    // New state: show the Screen Lock Permission educational dialog
+    var showScreenLockDialog by remember { mutableStateOf(false) }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
 
+    // ── Screen Lock Permission Educational Dialog ──────────────────────────────
+    if (showScreenLockDialog) {
+        AlertDialog(
+            onDismissRequest = { showScreenLockDialog = false },
+            title = {
+                Text(
+                    text = "Screen Lock Permission",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = OffWhite,
+                    letterSpacing = 1.sp
+                )
+            },
+            text = {
+                Text(
+                    text = "NodOff requires Device Admin rights strictly to use the screen-lock feature. We do not access or modify any other administrative data.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = LowContrastGrey
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showScreenLockDialog = false
+                        // Only now launch the OS Device Admin intent
+                        val adminComponent = ComponentName(context, NodOffDeviceAdminReceiver::class.java)
+                        val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+                            putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponent)
+                            putExtra(
+                                DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                                "Required to turn off and lock the screen when sleep is detected."
+                            )
+                        }
+                        context.startActivity(intent)
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = BrushedCopper)
+                ) {
+                    Text(
+                        text = "Proceed",
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showScreenLockDialog = false },
+                    colors = ButtonDefaults.textButtonColors(contentColor = LowContrastGrey)
+                ) {
+                    Text(
+                        text = "Cancel",
+                        fontWeight = FontWeight.Medium,
+                        letterSpacing = 1.sp
+                    )
+                }
+            },
+            containerColor = Color(0xEE1A1D1E),
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(16.dp))
+        )
+    }
+
+    // ── About Dialog ──────────────────────────────────────────────────────────
     if (showAboutDialog) {
         AlertDialog(
             onDismissRequest = { showAboutDialog = false },
@@ -104,6 +171,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
         )
     }
 
+    // ── Privacy Dialog ────────────────────────────────────────────────────────
     if (showPrivacyDialog) {
         AlertDialog(
             onDismissRequest = { showPrivacyDialog = false },
@@ -122,6 +190,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
         )
     }
 
+    // ── Bug Dialog ────────────────────────────────────────────────────────────
     if (showBugDialog) {
         AlertDialog(
             onDismissRequest = { showBugDialog = false },
@@ -140,6 +209,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
         )
     }
 
+    // ── Bottom Sheet ──────────────────────────────────────────────────────────
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet = false },
@@ -223,11 +293,13 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
         Scaffold(
             bottomBar = { BottomNavBar(selectedTab = 0, onTabSelected = onNavigate) },
             containerColor = MaterialTheme.colorScheme.background
-        ) { padding ->
+        ) { paddingValues ->
+            // ── FIX: Apply paddingValues and make content scrollable ──────────
             Column(
                 modifier = Modifier
-                    .padding(padding)
+                    .padding(paddingValues)           // respects bottom nav bar inset
                     .fillMaxSize()
+                    .verticalScroll(scrollState)      // enables scroll past bottom nav
                     .padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -317,7 +389,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
 
                 Spacer(modifier = Modifier.height(48.dp))
 
-                // Sleep Actions
+                // Sleep Actions Card
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = "SLEEP ACTIONS",
@@ -342,17 +414,13 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                                     val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
                                     val adminComponent = ComponentName(context, NodOffDeviceAdminReceiver::class.java)
                                     val isAdminActive = dpm?.isAdminActive(adminComponent) == true
-                                    
+
                                     if (isAdminActive) {
                                         viewModel.setTurnOffScreen(true)
                                     } else {
+                                        // FIX: Show educational dialog FIRST, then launch intent on Proceed
                                         viewModel.setTurnOffScreen(false)
-                                        val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
-                                            putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponent)
-                                            putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Required to turn off and lock the screen when sleep is detected.")
-                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                        }
-                                        context.startActivity(intent)
+                                        showScreenLockDialog = true
                                     }
                                 } else {
                                     viewModel.setTurnOffScreen(false)
@@ -367,6 +435,8 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                             onCheckedChange = { viewModel.setDisconnectBluetooth(it) }
                         )
                     }
+                    // FIX: Extra bottom spacer so last row isn't obscured when not scrolled
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }

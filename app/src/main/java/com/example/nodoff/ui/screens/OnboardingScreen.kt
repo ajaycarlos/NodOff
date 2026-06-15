@@ -186,15 +186,17 @@ fun OnboardingScreen(onNavigateToDashboard: () -> Unit) {
 
     if (showDeviceAdminExplanation) {
         PermissionExplanationDialog(
-            title = "Device Admin Required",
-            description = "NodOff needs Device Administrator privileges to lock and turn off the screen using the DevicePolicyManager.lockNow() function when sleep is detected.",
+            title = "Screen Lock Permission",
+            description = "NodOff requires Device Admin rights strictly to use the screen-lock feature. We do not access or modify any other administrative data.",
             onConfirm = {
                 showDeviceAdminExplanation = false
                 val adminComponent = ComponentName(context, NodOffDeviceAdminReceiver::class.java)
                 val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
                     putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponent)
-                    putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Required to turn off and lock the screen when sleep is detected.")
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    putExtra(
+                        DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                        "Required to turn off and lock the screen when sleep is detected."
+                    )
                 }
                 context.startActivity(intent)
             },
@@ -263,7 +265,7 @@ fun OnboardingScreen(onNavigateToDashboard: () -> Unit) {
                 Divider(color = Color(0xFF2A2A2A), thickness = 1.dp, modifier = Modifier.padding(vertical = 12.dp))
                 ProtocolItem(
                     icon = Icons.Default.Lock,
-                    title = "Device Admin",
+                    title = "Device Admin (Optional)",
                     subtitle = "SECURITY SYSTEM LOCK",
                     isGranted = isDeviceAdminGranted,
                     onGrantClick = {

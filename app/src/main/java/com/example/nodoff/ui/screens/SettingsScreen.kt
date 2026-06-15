@@ -27,6 +27,12 @@ import androidx.compose.ui.unit.sp
 import com.example.nodoff.ui.components.*
 import com.example.nodoff.ui.theme.*
 import com.example.nodoff.ui.viewmodel.MainViewModel
+import com.example.nodoff.ui.viewmodel.AppInfoItem
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import android.graphics.Bitmap
+import android.graphics.Canvas
 
 private fun getAppLabel(context: Context, packageName: String): String {
     val pm = context.packageManager
@@ -38,31 +44,29 @@ private fun getAppLabel(context: Context, packageName: String): String {
     }
 }
 
-data class AppInfoItem(val label: String, val packageName: String)
+private fun drawableToImageBitmap(drawable: android.graphics.drawable.Drawable): ImageBitmap {
+    val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 96
+    val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 96
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    drawable.setBounds(0, 0, width, height)
+    drawable.draw(canvas)
+    return bitmap.asImageBitmap()
+}
 
 @Composable
 fun AppPickerDialog(
+    initialSelectedPackages: Set<String>,
+    getInstalledApps: () -> List<AppInfoItem>,
     onDismiss: () -> Unit,
-    onAppSelected: (String) -> Unit
+    onSave: (Set<String>) -> Unit
 ) {
-    val context = LocalContext.current
-    val packageManager = context.packageManager
-    
-    val installedApps = remember {
-        val intent = Intent(Intent.ACTION_MAIN, null).apply {
-            addCategory(Intent.CATEGORY_LAUNCHER)
-        }
-        packageManager.queryIntentActivities(intent, 0).map { resolveInfo ->
-            val label = resolveInfo.loadLabel(packageManager).toString()
-            val packageName = resolveInfo.activityInfo.packageName
-            AppInfoItem(label, packageName)
-        }.distinctBy { it.packageName }.sortedBy { it.label }
-    }
-    
+    val installedApps = remember { getInstalledApps() }
+    var selectedPackages by remember { mutableStateOf(initialSelectedPackages) }
     var searchQuery by remember { mutableStateOf("") }
+    
     val filteredApps = installedApps.filter {
-        it.label.contains(searchQuery, ignoreCase = true) ||
-        it.packageName.contains(searchQuery, ignoreCase = true)
+        it.label.contains(searchQuery, ignoreCase = true)
     }
 
     AlertDialog(
@@ -70,7 +74,7 @@ fun AppPickerDialog(
         title = {
             Column {
                 Text(
-                    text = "SELECT APPLICATION",
+                    text = "SELECT APPLICATIONS",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = OffWhite,
@@ -107,17 +111,55 @@ fun AppPickerDialog(
                 } else {
                     LazyColumn {
                         items(filteredApps) { app ->
+                            val isChecked = selectedPackages.contains(app.packageName)
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable { onAppSelected(app.packageName) }
-                                    .padding(vertical = 12.dp, horizontal = 8.dp),
+                                    .clickable {
+                                        selectedPackages = if (isChecked) {
+                                            selectedPackages - app.packageName
+                                        } else {
+                                            selectedPackages + app.packageName
+                                        }
+                                    }
+                                    .padding(vertical = 8.dp, horizontal = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Column {
-                                    Text(text = app.label, color = OffWhite, fontWeight = FontWeight.Medium)
-                                    Text(text = app.packageName, color = LowContrastGrey, fontSize = 10.sp)
+                                // App Icon
+                                app.icon?.let { drawable ->
+                                    val imageBitmap = remember(drawable) { drawableToImageBitmap(drawable) }
+                                    Image(
+                                        bitmap = imageBitmap,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(40.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(16.dp))
                                 }
+                                
+                                // App Name (Clean Label only, no package name)
+                                Text(
+                                    text = app.label,
+                                    color = OffWhite,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                
+                                // Checkbox on the far right
+                                Checkbox(
+                                    checked = isChecked,
+                                    onCheckedChange = { checked ->
+                                        selectedPackages = if (checked == true) {
+                                            selectedPackages + app.packageName
+                                        } else {
+                                            selectedPackages - app.packageName
+                                        }
+                                    },
+                                    colors = CheckboxDefaults.colors(
+                                        checkedColor = BrushedCopper,
+                                        uncheckedColor = LowContrastGrey,
+                                        checkmarkColor = OffWhite
+                                    )
+                                )
                             }
                             HorizontalDivider(color = Color(0xFF2A2A2A), thickness = 0.5.dp)
                         }
@@ -126,8 +168,13 @@ fun AppPickerDialog(
             }
         },
         confirmButton = {
+            TextButton(onClick = { onSave(selectedPackages) }) {
+                Text("SAVE", color = BrushedCopper, fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("CLOSE", color = LowContrastGrey)
+                Text("CANCEL", color = LowContrastGrey)
             }
         },
         containerColor = Color(0xFF151819),
@@ -208,9 +255,11 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
 
     if (showAppPicker) {
         AppPickerDialog(
+            initialSelectedPackages = automationApps,
+            getInstalledApps = { viewModel.getInstalledApps() },
             onDismiss = { showAppPicker = false },
-            onAppSelected = { pkg ->
-                viewModel.addAutomationApp(pkg)
+            onSave = { selected ->
+                viewModel.setAutomationApps(selected)
                 showAppPicker = false
             }
         )
@@ -386,7 +435,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     NodOffButton(
-                        text = "+ ADD APP",
+                        text = "+ ADD APPS",
                         onClick = { showAppPicker = true },
                         modifier = Modifier.fillMaxWidth(),
                         isPrimary = false

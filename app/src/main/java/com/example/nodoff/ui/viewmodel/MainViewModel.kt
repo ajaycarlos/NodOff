@@ -139,6 +139,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun setAutomationApps(packages: Set<String>) {
+        viewModelScope.launch {
+            repository.setAutomationApps(packages)
+        }
+    }
+
+    fun getInstalledApps(): List<AppInfoItem> {
+        val context = getApplication<Application>().applicationContext
+        val pm = context.packageManager
+        val intent = Intent(Intent.ACTION_MAIN, null).apply {
+            addCategory(Intent.CATEGORY_LAUNCHER)
+        }
+        return pm.queryIntentActivities(intent, 0).mapNotNull { resolveInfo ->
+            val packageName = resolveInfo.activityInfo.packageName
+            // Filter out apps that don't have a valid launch intent (filter out raw system services)
+            if (pm.getLaunchIntentForPackage(packageName) != null) {
+                val label = resolveInfo.loadLabel(pm).toString()
+                val icon = try {
+                    pm.getApplicationIcon(packageName)
+                } catch (e: Exception) {
+                    pm.defaultActivityIcon
+                }
+                AppInfoItem(label, packageName, icon)
+            } else {
+                null
+            }
+        }.distinctBy { it.packageName }.sortedBy { it.label }
+    }
+
     fun setThemePreference(value: Int) {
         viewModelScope.launch {
             repository.setThemePreference(value)
@@ -151,3 +180,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 }
+
+data class AppInfoItem(
+    val label: String,
+    val packageName: String,
+    val icon: android.graphics.drawable.Drawable?
+)
