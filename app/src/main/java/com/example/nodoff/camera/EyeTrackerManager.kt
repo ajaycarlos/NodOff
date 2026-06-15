@@ -16,11 +16,17 @@ import com.google.mlkit.vision.face.FaceDetectorOptions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import com.example.nodoff.data.SettingsRepository
 
 enum class EyeStatus {
     IDLE,
     EYES_OPEN,
-    EYES_CLOSED
+    EYES_CLOSED,
+    FACE_LOST_TIMEOUT
 }
 
 data class EyeTrackingState(
@@ -37,6 +43,11 @@ class EyeTrackerManager(
 
     private var closedStartTime: Long? = null
 
+    private val repository = SettingsRepository(context)
+    private var faceLostTimeoutSeconds: Int = 120
+    private var faceLostJob: Job? = null
+    private var settingsJob: Job? = null
+
     // Configure Face Detector with Classification Mode enabled
     private val detectorOptions = FaceDetectorOptions.Builder()
         .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
@@ -45,6 +56,12 @@ class EyeTrackerManager(
     private val detector = FaceDetection.getClient(detectorOptions)
 
     fun start() {
+        settingsJob = lifecycleOwner.lifecycleScope.launch {
+            repository.faceLostTimeoutSecondsFlow.collect {
+                faceLostTimeoutSeconds = it
+            }
+        }
+
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
@@ -75,6 +92,10 @@ class EyeTrackerManager(
     }
 
     fun stop() {
+        cancelFaceLostTimer()
+        settingsJob?.cancel()
+        settingsJob = null
+
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
@@ -82,6 +103,23 @@ class EyeTrackerManager(
             closedStartTime = null
             _state.value = EyeTrackingState(EyeStatus.IDLE, 0L)
         }, ContextCompat.getMainExecutor(context))
+    }
+
+    private fun startFaceLostTimer() {
+        if (_state.value.status == EyeStatus.FACE_LOST_TIMEOUT) {
+            return
+        }
+        if (faceLostJob == null || faceLostJob?.isActive == false) {
+            faceLostJob = lifecycleOwner.lifecycleScope.launch {
+                delay(faceLostTimeoutSeconds * 1000L)
+                _state.value = EyeTrackingState(EyeStatus.FACE_LOST_TIMEOUT, 0L)
+            }
+        }
+    }
+
+    private fun cancelFaceLostTimer() {
+        faceLostJob?.cancel()
+        faceLostJob = null
     }
 
     @OptIn(ExperimentalGetImage::class)
@@ -93,9 +131,14 @@ class EyeTrackerManager(
                 .addOnSuccessListener { faces ->
                     if (faces.isEmpty()) {
                         closedStartTime = null
-                        _state.value = EyeTrackingState(EyeStatus.IDLE, 0L)
+                        if (_state.value.status != EyeStatus.FACE_LOST_TIMEOUT) {
+                            _state.value = EyeTrackingState(EyeStatus.IDLE, 0L)
+                        }
+                        startFaceLostTimer()
                         return@addOnSuccessListener
                     }
+
+                    cancelFaceLostTimer()
 
                     val face = faces.first()
                     val leftOpen = face.leftEyeOpenProbability

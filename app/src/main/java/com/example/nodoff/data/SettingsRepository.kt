@@ -22,6 +22,8 @@ class SettingsRepository(private val context: Context) {
         val EYE_CLOSE_DELAY = floatPreferencesKey("eye_close_delay")
         val POLLING_RATE = intPreferencesKey("polling_rate")
         val AUTOMATION_APPS = stringSetPreferencesKey("automation_apps")
+        val THEME_PREFERENCE = intPreferencesKey("theme_preference") // 0=System, 1=Light, 2=Dark
+        val FACE_LOST_TIMEOUT_SECONDS = intPreferencesKey("face_lost_timeout_seconds")
     }
 
     val pauseMediaFlow: Flow<Boolean> = dataStore.data.map { preferences ->
@@ -46,6 +48,14 @@ class SettingsRepository(private val context: Context) {
 
     val automationAppsFlow: Flow<Set<String>> = dataStore.data.map { preferences ->
         preferences[PreferencesKeys.AUTOMATION_APPS] ?: emptySet()
+    }
+
+    val themePreferenceFlow: Flow<Int> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.THEME_PREFERENCE] ?: 0
+    }
+
+    val faceLostTimeoutSecondsFlow: Flow<Int> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.FACE_LOST_TIMEOUT_SECONDS] ?: 120
     }
 
     suspend fun setPauseMedia(value: Boolean) {
@@ -89,6 +99,18 @@ class SettingsRepository(private val context: Context) {
         dataStore.edit { preferences ->
             val currentApps = preferences[PreferencesKeys.AUTOMATION_APPS] ?: emptySet()
             preferences[PreferencesKeys.AUTOMATION_APPS] = currentApps - packageName
+        }
+    }
+
+    suspend fun setThemePreference(value: Int) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.THEME_PREFERENCE] = value
+        }
+    }
+
+    suspend fun setFaceLostTimeoutSeconds(value: Int) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.FACE_LOST_TIMEOUT_SECONDS] = value
         }
     }
 }

@@ -27,17 +27,21 @@ fun NodOffButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    isPrimary: Boolean = true
+    isPrimary: Boolean = true,
+    enabled: Boolean = true
 ) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier.height(48.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isPrimary) BrushedCopper else DarkSlateGrey,
-            contentColor = OffWhite
+            containerColor = if (isPrimary) BrushedCopper else MaterialTheme.colorScheme.surface,
+            contentColor = OffWhite,
+            disabledContainerColor = (if (isPrimary) BrushedCopper else MaterialTheme.colorScheme.surface).copy(alpha = 0.5f),
+            disabledContentColor = OffWhite.copy(alpha = 0.5f)
         ),
         shape = RoundedCornerShape(12.dp),
-        border = if (!isPrimary) BorderStroke(1.dp, Color(0xFF333333)) else null
+        border = if (!isPrimary) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null
     ) {
         Text(
             text = text.uppercase(),
@@ -55,7 +59,7 @@ fun NodOffCard(
 ) {
     Column(
         modifier = modifier
-            .background(DarkSlateGrey, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
             .padding(16.dp),
         content = content
     )
@@ -115,8 +119,8 @@ fun ActionToggle(
             colors = SwitchDefaults.colors(
                 checkedThumbColor = OffWhite,
                 checkedTrackColor = BrushedCopper,
-                uncheckedThumbColor = LowContrastGrey,
-                uncheckedTrackColor = DarkSlateGrey
+                uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                uncheckedTrackColor = MaterialTheme.colorScheme.surface
             )
         )
     }
@@ -191,7 +195,7 @@ fun SegmentedButton(
 @Composable
 fun BottomNavBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     NavigationBar(
-        containerColor = DarkSlateGrey,
+        containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 0.dp,
         modifier = Modifier.height(80.dp)
     ) {

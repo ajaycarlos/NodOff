@@ -14,12 +14,17 @@ import android.os.SystemClock
 import android.view.KeyEvent
 import androidx.core.content.ContextCompat
 import com.example.nodoff.data.SettingsRepository
+import com.example.nodoff.data.db.EventEntity
+import com.example.nodoff.data.db.NodOffDatabase
 import kotlinx.coroutines.flow.first
 
 class ActionExecutor(
     private val context: Context,
     private val settingsRepository: SettingsRepository
 ) {
+
+    private val database = NodOffDatabase.getDatabase(context)
+    private val eventDao = database.eventDao()
 
     /**
      * Pauses active background media by requesting transient audio focus
@@ -97,14 +102,18 @@ class ActionExecutor(
      * Checks DataStore preferences and executes the enabled sleep actions.
      */
     suspend fun triggerSleepActions() {
+        val timestamp = System.currentTimeMillis()
         if (settingsRepository.pauseMediaFlow.first()) {
             pauseMedia()
+            eventDao.insertEvent(EventEntity(timestamp = timestamp, actionType = "PAUSE_MEDIA"))
         }
         if (settingsRepository.disconnectBluetoothFlow.first()) {
             disconnectBluetooth()
+            eventDao.insertEvent(EventEntity(timestamp = timestamp, actionType = "DISCONNECT_BLUETOOTH"))
         }
         if (settingsRepository.turnOffScreenFlow.first()) {
             turnOffScreen()
+            eventDao.insertEvent(EventEntity(timestamp = timestamp, actionType = "TURN_OFF_SCREEN"))
         }
     }
 }

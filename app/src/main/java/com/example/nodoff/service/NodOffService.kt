@@ -110,6 +110,13 @@ class NodOffService : LifecycleService() {
                             }
                         }
                     }
+                } else if (state.status == EyeStatus.FACE_LOST_TIMEOUT) {
+                    if (!isActionTriggered) {
+                        isActionTriggered = true
+                        launch {
+                            actionExecutor.triggerSleepActions()
+                        }
+                    }
                 } else {
                     // Reset triggered flag when eyes are open or status is idle
                     isActionTriggered = false

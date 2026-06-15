@@ -7,6 +7,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nodoff.data.SettingsRepository
 import com.example.nodoff.camera.EyeTrackingState
+import com.example.nodoff.data.db.EventEntity
+import com.example.nodoff.data.db.NodOffDatabase
 import com.example.nodoff.service.NodOffService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,11 +19,19 @@ import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = SettingsRepository(application)
+    private val database = NodOffDatabase.getDatabase(application)
+    private val eventDao = database.eventDao()
 
     private val _isMonitoring = MutableStateFlow(false)
     val isMonitoring: StateFlow<Boolean> = _isMonitoring.asStateFlow()
 
     val eyeTrackingState: StateFlow<EyeTrackingState> = NodOffService.trackingState
+
+    val allEvents: StateFlow<List<EventEntity>> = eventDao.getAllEvents().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     fun toggleMonitoring() {
         val context = getApplication<Application>().applicationContext
@@ -75,6 +85,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         initialValue = emptySet()
     )
 
+    val themePreference: StateFlow<Int> = repository.themePreferenceFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 0
+    )
+
+    val faceLostTimeoutSeconds: StateFlow<Int> = repository.faceLostTimeoutSecondsFlow.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = 120
+    )
+
     fun setPauseMedia(value: Boolean) {
         viewModelScope.launch {
             repository.setPauseMedia(value)
@@ -114,6 +136,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun removeAutomationApp(packageName: String) {
         viewModelScope.launch {
             repository.removeAutomationApp(packageName)
+        }
+    }
+
+    fun setThemePreference(value: Int) {
+        viewModelScope.launch {
+            repository.setThemePreference(value)
+        }
+    }
+
+    fun setFaceLostTimeoutSeconds(value: Int) {
+        viewModelScope.launch {
+            repository.setFaceLostTimeoutSeconds(value)
         }
     }
 }

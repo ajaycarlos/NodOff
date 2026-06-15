@@ -142,9 +142,14 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
     val eyeCloseDelayFlow by viewModel.eyeCloseDelay.collectAsState()
     val pollingRateFlow by viewModel.pollingRate.collectAsState()
     val automationApps by viewModel.automationApps.collectAsState()
+    val themePreference by viewModel.themePreference.collectAsState()
+    val faceLostTimeoutSecondsFlow by viewModel.faceLostTimeoutSeconds.collectAsState()
+
+    var faceLostTimeoutMinutes by remember(faceLostTimeoutSecondsFlow) { mutableStateOf(faceLostTimeoutSecondsFlow / 60) }
 
     var showActivationDelayInfo by remember { mutableStateOf(false) }
     var showBatterySaverInfo by remember { mutableStateOf(false) }
+    var showFaceLostTimeoutInfo by remember { mutableStateOf(false) }
     var showAppPicker by remember { mutableStateOf(false) }
 
     if (showActivationDelayInfo) {
@@ -183,6 +188,24 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
         )
     }
 
+    if (showFaceLostTimeoutInfo) {
+        AlertDialog(
+            onDismissRequest = { showFaceLostTimeoutInfo = false },
+            title = { Text(text = "Face Absence Timeout", color = OffWhite) },
+            text = { Text(text = "If the camera cannot detect a face at all (e.g., phone falls face down) for this duration, it will trigger the sleep actions.", color = LowContrastGrey) },
+            confirmButton = {
+                TextButton(onClick = { showFaceLostTimeoutInfo = false }) {
+                    Text(text = "OK", color = BrushedCopper)
+                }
+            },
+            containerColor = Color(0xFF151819),
+            titleContentColor = OffWhite,
+            textContentColor = OffWhite,
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(16.dp))
+        )
+    }
+
     if (showAppPicker) {
         AppPickerDialog(
             onDismiss = { showAppPicker = false },
@@ -195,7 +218,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
 
     Scaffold(
         bottomBar = { BottomNavBar(selectedTab = 2, onTabSelected = onNavigate) },
-        containerColor = DeepBlack
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -258,6 +281,51 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                         Text(text = "3S", color = LowContrastGrey, fontSize = 10.sp)
                         Text(text = "${sliderValue.toInt()}S", color = LowContrastGrey, fontSize = 10.sp)
                         Text(text = "60S", color = LowContrastGrey, fontSize = 10.sp)
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
+                NodOffCard {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = "Face Absence Timeout", color = OffWhite)
+                        IconButton(
+                            onClick = { showFaceLostTimeoutInfo = true },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = "Info",
+                                tint = LowContrastGrey,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                    Text(text = "Time before trigger if no face is detected.", color = LowContrastGrey, fontSize = 12.sp)
+                    Slider(
+                        value = faceLostTimeoutMinutes.toFloat(),
+                        onValueChange = { faceLostTimeoutMinutes = it.toInt() },
+                        onValueChangeFinished = { viewModel.setFaceLostTimeoutSeconds(faceLostTimeoutMinutes * 60) },
+                        valueRange = 1f..10f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = BrushedCopper,
+                            activeTrackColor = BrushedCopper,
+                            inactiveTrackColor = Color(0xFF2A2A2A)
+                        )
+                    )
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(text = "1 min", color = LowContrastGrey, fontSize = 10.sp)
+                        Text(
+                            text = if (faceLostTimeoutMinutes == 1) "1 min" else "$faceLostTimeoutMinutes mins",
+                            color = LowContrastGrey,
+                            fontSize = 10.sp
+                        )
+                        Text(text = "10 mins", color = LowContrastGrey, fontSize = 10.sp)
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -334,8 +402,8 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                     Spacer(modifier = Modifier.height(12.dp))
                     SegmentedButton(
                         options = listOf("SYSTEM", "LIGHT", "DARK"),
-                        selectedIndex = 2,
-                        onSelectedIndexChange = {}
+                        selectedIndex = themePreference,
+                        onSelectedIndexChange = { viewModel.setThemePreference(it) }
                     )
                 }
             }

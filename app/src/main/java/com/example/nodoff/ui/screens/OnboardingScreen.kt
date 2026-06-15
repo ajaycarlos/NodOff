@@ -205,7 +205,7 @@ fun OnboardingScreen(onNavigateToDashboard: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(DeepBlack)
+            .background(MaterialTheme.colorScheme.background)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
@@ -275,8 +275,9 @@ fun OnboardingScreen(onNavigateToDashboard: () -> Unit) {
 
         NodOffButton(
             text = "Initialize System",
+            enabled = isCameraGranted && isNotificationGranted,
             onClick = {
-                if (isCameraGranted && isNotificationGranted && isDeviceAdminGranted) {
+                if (isCameraGranted && isNotificationGranted) {
                     onNavigateToDashboard()
                 } else {
                     Toast.makeText(
