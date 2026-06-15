@@ -48,7 +48,7 @@ fun DrawerItem(
             .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = label, color = OffWhite, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        Text(text = label, color = MaterialTheme.colorScheme.onSurface, fontSize = 16.sp, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -99,7 +99,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                     text = "Screen Lock Permission",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = OffWhite,
+                    color = MaterialTheme.colorScheme.onSurface,
                     letterSpacing = 1.sp
                 )
             },
@@ -146,9 +146,9 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                     )
                 }
             },
-            containerColor = Color(0xEE1A1D1E),
+            containerColor = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(16.dp))
+            modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
         )
     }
 
@@ -156,18 +156,18 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
     if (showAboutDialog) {
         AlertDialog(
             onDismissRequest = { showAboutDialog = false },
-            title = { Text(text = "About NodOff", color = OffWhite) },
+            title = { Text(text = "About NodOff", color = MaterialTheme.colorScheme.onSurface) },
             text = { Text(text = "NodOff is a premium background sleep monitoring tool designed to assist with restorative sleep by managing active device operations.", color = LowContrastGrey) },
             confirmButton = {
                 TextButton(onClick = { showAboutDialog = false }) {
                     Text(text = "OK", color = BrushedCopper)
                 }
             },
-            containerColor = Color(0xFF151819),
-            titleContentColor = OffWhite,
-            textContentColor = OffWhite,
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurface,
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(16.dp))
+            modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
         )
     }
 
@@ -175,18 +175,18 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
     if (showPrivacyDialog) {
         AlertDialog(
             onDismissRequest = { showPrivacyDialog = false },
-            title = { Text(text = "Privacy Policy", color = OffWhite) },
+            title = { Text(text = "Privacy Policy", color = MaterialTheme.colorScheme.onSurface) },
             text = { Text(text = "NodOff operates 100% offline. Face classification and eye tracking are performed entirely on-device using local machine learning models. Your camera feed, video, and personal data are never recorded, saved, or transmitted to any server.", color = LowContrastGrey) },
             confirmButton = {
                 TextButton(onClick = { showPrivacyDialog = false }) {
                     Text(text = "OK", color = BrushedCopper)
                 }
             },
-            containerColor = Color(0xFF151819),
-            titleContentColor = OffWhite,
-            textContentColor = OffWhite,
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurface,
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(16.dp))
+            modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
         )
     }
 
@@ -194,18 +194,18 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
     if (showBugDialog) {
         AlertDialog(
             onDismissRequest = { showBugDialog = false },
-            title = { Text(text = "Report a Bug", color = OffWhite) },
+            title = { Text(text = "Report a Bug", color = MaterialTheme.colorScheme.onSurface) },
             text = { Text(text = "To report a bug, please contact support@nodoff.example.com or visit our GitHub repository.", color = LowContrastGrey) },
             confirmButton = {
                 TextButton(onClick = { showBugDialog = false }) {
                     Text(text = "OK", color = BrushedCopper)
                 }
             },
-            containerColor = Color(0xFF151819),
-            titleContentColor = OffWhite,
-            textContentColor = OffWhite,
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurface,
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(16.dp))
+            modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
         )
     }
 
@@ -213,8 +213,8 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet = false },
-            containerColor = Color(0xFF151819),
-            contentColor = OffWhite
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
         ) {
             Column(
                 modifier = Modifier
@@ -237,7 +237,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "Total Times Paused Media", color = OffWhite)
+                        Text(text = "Total Times Paused Media", color = MaterialTheme.colorScheme.onSurface)
                         Text(text = "42", color = BrushedCopper, fontWeight = FontWeight.Bold)
                     }
                 }
@@ -248,7 +248,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "Total Devices Locked", color = OffWhite)
+                        Text(text = "Total Devices Locked", color = MaterialTheme.colorScheme.onSurface)
                         Text(text = "18", color = BrushedCopper, fontWeight = FontWeight.Bold)
                     }
                 }
@@ -261,7 +261,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
         drawerState = drawerState,
         drawerContent = @Composable {
             ModalDrawerSheet(
-                drawerContainerColor = Color(0xFF151819),
+                drawerContainerColor = MaterialTheme.colorScheme.surface,
                 modifier = Modifier.width(300.dp)
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
@@ -272,7 +272,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(16.dp)
                 )
-                HorizontalDivider(color = Color(0xFF2A2A2A), thickness = 1.dp)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 DrawerItem(label = "About") {
@@ -310,7 +310,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu", tint = OffWhite)
+                        Icon(Icons.Default.Menu, contentDescription = "Menu", tint = MaterialTheme.colorScheme.onBackground)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
@@ -321,7 +321,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                         Text(text = "NodOff", color = BrushedCopper, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
                     }
                     IconButton(onClick = { showBottomSheet = true }) {
-                        Icon(Icons.Default.AccountCircle, contentDescription = "Profile", tint = OffWhite)
+                        Icon(Icons.Default.AccountCircle, contentDescription = "Profile", tint = MaterialTheme.colorScheme.onBackground)
                     }
                 }
 
@@ -345,7 +345,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                             EyeStatus.FACE_LOST_TIMEOUT -> "FACE LOST"
                         }
                     }
-                    val statusColor = if (isMonitoring && eyeTrackingState.status == EyeStatus.EYES_CLOSED) BrushedCopper else OffWhite
+                    val statusColor = if (isMonitoring && eyeTrackingState.status == EyeStatus.EYES_CLOSED) BrushedCopper else MaterialTheme.colorScheme.onSurface
                     Text(
                         text = statusText,
                         color = statusColor,

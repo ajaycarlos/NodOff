@@ -20,14 +20,14 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    background = StarkWhite,
-    surface = LightSlateGrey,
+    background = Color.White,
+    surface = Color(0xFFF5F5F5),
     primary = BrushedCopper,
-    onBackground = DarkText,
-    onSurface = DarkText,
-    onPrimary = OffWhite,
-    surfaceVariant = Color(0xFFD1D5DB),
-    outline = Color(0xFF9CA3AF)
+    onBackground = Color(0xFF1A1D1E),
+    onSurface = Color(0xFF1A1D1E),
+    onPrimary = Color.White,
+    surfaceVariant = Color(0xFFE5E5E5),
+    outline = Color(0xFFCCCCCC)
 )
 
 @Composable

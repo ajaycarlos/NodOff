@@ -36,9 +36,9 @@ fun NodOffButton(
         modifier = modifier.height(48.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isPrimary) BrushedCopper else MaterialTheme.colorScheme.surface,
-            contentColor = OffWhite,
+            contentColor = if (isPrimary) OffWhite else MaterialTheme.colorScheme.onSurface,
             disabledContainerColor = (if (isPrimary) BrushedCopper else MaterialTheme.colorScheme.surface).copy(alpha = 0.5f),
-            disabledContentColor = OffWhite.copy(alpha = 0.5f)
+            disabledContentColor = (if (isPrimary) OffWhite else MaterialTheme.colorScheme.onSurface).copy(alpha = 0.5f)
         ),
         shape = RoundedCornerShape(12.dp),
         border = if (!isPrimary) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null
@@ -82,7 +82,7 @@ fun ProtocolItem(
             Icon(icon, contentDescription = null, tint = BrushedCopper, modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(16.dp))
             Column {
-                Text(text = title, color = OffWhite, fontWeight = FontWeight.Medium)
+                Text(text = title, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
                 Text(text = subtitle, color = LowContrastGrey, fontSize = 10.sp)
             }
         }
@@ -111,7 +111,7 @@ fun ActionToggle(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, contentDescription = null, tint = LowContrastGrey, modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(12.dp))
-            Text(text = title, color = OffWhite)
+            Text(text = title, color = MaterialTheme.colorScheme.onSurface)
         }
         Switch(
             checked = checked,
@@ -140,11 +140,11 @@ fun SettingSectionHeader(text: String) {
 fun AppChip(name: String, onRemoveClick: () -> Unit) {
     Row(
         modifier = Modifier
-            .border(1.dp, Color(0xFF333333), RoundedCornerShape(4.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(4.dp))
             .padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = name, color = OffWhite, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+        Text(text = name, color = MaterialTheme.colorScheme.onSurface, fontSize = 10.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.width(4.dp))
         Icon(
             imageVector = Icons.Default.Close,
@@ -166,7 +166,7 @@ fun SegmentedButton(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, Color(0xFF333333), RoundedCornerShape(4.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(4.dp))
             .height(40.dp)
     ) {
         options.forEachIndexed { index, option ->
@@ -180,13 +180,13 @@ fun SegmentedButton(
             ) {
                 Text(
                     text = option,
-                    color = if (index == selectedIndex) OffWhite else LowContrastGrey,
+                    color = if (index == selectedIndex) OffWhite else MaterialTheme.colorScheme.onSurface,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
             if (index < options.size - 1) {
-                VerticalDivider(modifier = Modifier.fillMaxHeight().width(1.dp), color = Color(0xFF333333))
+                VerticalDivider(modifier = Modifier.fillMaxHeight().width(1.dp), color = MaterialTheme.colorScheme.outline)
             }
         }
     }

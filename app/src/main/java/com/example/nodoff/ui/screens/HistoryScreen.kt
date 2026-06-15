@@ -40,7 +40,7 @@ fun EventItem(event: EventEntity) {
             Column {
                 Text(
                     text = event.actionType.replace("_", " "),
-                    color = OffWhite,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
                 )
@@ -84,7 +84,7 @@ fun HistoryScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
         ) {
             Text(
                 text = "HISTORY LOG",
-                color = OffWhite,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),

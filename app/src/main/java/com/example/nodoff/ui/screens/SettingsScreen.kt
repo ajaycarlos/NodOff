@@ -14,6 +14,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,6 +31,7 @@ import com.example.nodoff.ui.theme.*
 import com.example.nodoff.ui.viewmodel.MainViewModel
 import com.example.nodoff.ui.viewmodel.AppInfoItem
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import android.graphics.Bitmap
@@ -77,7 +80,7 @@ fun AppPickerDialog(
                     text = "SELECT APPLICATIONS",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = OffWhite,
+                    color = MaterialTheme.colorScheme.onSurface,
                     letterSpacing = 1.sp
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -177,9 +180,9 @@ fun AppPickerDialog(
                 Text("CANCEL", color = LowContrastGrey)
             }
         },
-        containerColor = Color(0xFF151819),
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(16.dp))
+        modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
     )
 }
 
@@ -202,54 +205,54 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
     if (showActivationDelayInfo) {
         AlertDialog(
             onDismissRequest = { showActivationDelayInfo = false },
-            title = { Text(text = "Activation Delay", color = OffWhite) },
+            title = { Text(text = "Activation Delay", color = MaterialTheme.colorScheme.onSurface) },
             text = { Text(text = "How many seconds your eyes must remain completely closed before the app triggers.", color = LowContrastGrey) },
             confirmButton = {
                 TextButton(onClick = { showActivationDelayInfo = false }) {
                     Text(text = "OK", color = BrushedCopper)
                 }
             },
-            containerColor = Color(0xFF151819),
-            titleContentColor = OffWhite,
-            textContentColor = OffWhite,
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurface,
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(16.dp))
+            modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
         )
     }
 
     if (showBatterySaverInfo) {
         AlertDialog(
             onDismissRequest = { showBatterySaverInfo = false },
-            title = { Text(text = "Battery Saver Mode", color = OffWhite) },
+            title = { Text(text = "Battery Saver Mode", color = MaterialTheme.colorScheme.onSurface) },
             text = { Text(text = "How frequently the camera checks your eyes. Slower checks save battery but react slower.", color = LowContrastGrey) },
             confirmButton = {
                 TextButton(onClick = { showBatterySaverInfo = false }) {
                     Text(text = "OK", color = BrushedCopper)
                 }
             },
-            containerColor = Color(0xFF151819),
-            titleContentColor = OffWhite,
-            textContentColor = OffWhite,
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurface,
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(16.dp))
+            modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
         )
     }
 
     if (showFaceLostTimeoutInfo) {
         AlertDialog(
             onDismissRequest = { showFaceLostTimeoutInfo = false },
-            title = { Text(text = "Face Absence Timeout", color = OffWhite) },
+            title = { Text(text = "Face Absence Timeout", color = MaterialTheme.colorScheme.onSurface) },
             text = { Text(text = "If the camera cannot detect a face at all (e.g., phone falls face down) for this duration, it will trigger the sleep actions.", color = LowContrastGrey) },
             confirmButton = {
                 TextButton(onClick = { showFaceLostTimeoutInfo = false }) {
                     Text(text = "OK", color = BrushedCopper)
                 }
             },
-            containerColor = Color(0xFF151819),
-            titleContentColor = OffWhite,
-            textContentColor = OffWhite,
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurface,
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(16.dp))
+            modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
         )
     }
 
@@ -282,7 +285,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                     }
                     Text(
                         text = "SETTINGS",
-                        color = OffWhite,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1f),
@@ -300,7 +303,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = "Activation Delay", color = OffWhite)
+                        Text(text = "Activation Delay", color = MaterialTheme.colorScheme.onSurface)
                         IconButton(
                             onClick = { showActivationDelayInfo = true },
                             modifier = Modifier.size(24.dp)
@@ -323,7 +326,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                         colors = SliderDefaults.colors(
                             thumbColor = BrushedCopper,
                             activeTrackColor = BrushedCopper,
-                            inactiveTrackColor = Color(0xFF2A2A2A)
+                            inactiveTrackColor = MaterialTheme.colorScheme.outline
                         )
                     )
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -342,7 +345,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = "Face Absence Timeout", color = OffWhite)
+                        Text(text = "Face Absence Timeout", color = MaterialTheme.colorScheme.onSurface)
                         IconButton(
                             onClick = { showFaceLostTimeoutInfo = true },
                             modifier = Modifier.size(24.dp)
@@ -364,7 +367,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                         colors = SliderDefaults.colors(
                             thumbColor = BrushedCopper,
                             activeTrackColor = BrushedCopper,
-                            inactiveTrackColor = Color(0xFF2A2A2A)
+                            inactiveTrackColor = MaterialTheme.colorScheme.outline
                         )
                     )
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -387,7 +390,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = "Battery Saver Mode", color = OffWhite)
+                        Text(text = "Battery Saver Mode", color = MaterialTheme.colorScheme.onSurface)
                         IconButton(
                             onClick = { showBatterySaverInfo = true },
                             modifier = Modifier.size(24.dp)
@@ -400,12 +403,50 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    SegmentedButton(
-                        options = listOf("CONTINUOUS", "2S", "5S"),
-                        selectedIndex = pollingRateFlow,
-                        onSelectedIndexChange = { viewModel.setPollingRate(it) }
-                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    var expanded by remember { mutableStateOf(false) }
+                    val options = listOf("CONT", "2S", "5S", "10S", "30S", "60S")
+                    
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+                                .clickable { expanded = true }
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = options.getOrElse(pollingRateFlow) { "CONT" },
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Icon(
+                                imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                                contentDescription = "Dropdown",
+                                tint = LowContrastGrey
+                            )
+                        }
+                        
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.surface)
+                                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+                        ) {
+                            options.forEachIndexed { index, option ->
+                                DropdownMenuItem(
+                                    text = { Text(text = option, color = MaterialTheme.colorScheme.onSurface) },
+                                    onClick = {
+                                        viewModel.setPollingRate(index)
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
                 Spacer(modifier = Modifier.height(32.dp))
             }
@@ -413,7 +454,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
             item { SettingSectionHeader("AUTOMATION") }
             item {
                 NodOffCard {
-                    Text(text = "Auto-Start Monitor with Apps", color = OffWhite)
+                    Text(text = "Auto-Start Monitor with Apps", color = MaterialTheme.colorScheme.onSurface)
                     Spacer(modifier = Modifier.height(12.dp))
                     
                     if (automationApps.isEmpty()) {
@@ -447,7 +488,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
             item { SettingSectionHeader("APPEARANCE") }
             item {
                 NodOffCard {
-                    Text(text = "Theme", color = OffWhite)
+                    Text(text = "Theme", color = MaterialTheme.colorScheme.onSurface)
                     Spacer(modifier = Modifier.height(12.dp))
                     SegmentedButton(
                         options = listOf("SYSTEM", "LIGHT", "DARK"),
