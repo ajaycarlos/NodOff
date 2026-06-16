@@ -88,7 +88,6 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val scrollState = rememberScrollState()
 
     // ── Screen Lock Permission Educational Dialog ──────────────────────────────
     if (showScreenLockDialog) {
@@ -294,13 +293,12 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
             bottomBar = { BottomNavBar(selectedTab = 0, onTabSelected = onNavigate) },
             containerColor = MaterialTheme.colorScheme.background
         ) { paddingValues ->
-            // ── FIX: Apply paddingValues and make content scrollable ──────────
             Column(
                 modifier = Modifier
-                    .padding(paddingValues)           // respects bottom nav bar inset
                     .fillMaxSize()
-                    .verticalScroll(scrollState)      // enables scroll past bottom nav
+                    .padding(paddingValues)
                     .padding(20.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Header
@@ -324,8 +322,6 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                         Icon(Icons.Default.AccountCircle, contentDescription = "Profile", tint = MaterialTheme.colorScheme.onBackground)
                     }
                 }
-
-                Spacer(modifier = Modifier.height(32.dp))
 
                 // System State Card
                 NodOffCard(modifier = Modifier.fillMaxWidth()) {
@@ -362,32 +358,37 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                     }
                 }
 
-                Spacer(modifier = Modifier.height(48.dp))
-
                 // Start Monitoring Button
-                IconButton(
-                    onClick = { viewModel.toggleMonitoring() },
-                    modifier = Modifier
-                        .size(120.dp)
-                        .border(2.dp, BrushedCopper, RoundedCornerShape(100.dp))
-                        .padding(8.dp)
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = if (isMonitoring) Icons.Default.Pause else Icons.Default.PowerSettingsNew,
-                        contentDescription = "Power",
-                        tint = BrushedCopper,
-                        modifier = Modifier.size(48.dp)
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        IconButton(
+                            onClick = { viewModel.toggleMonitoring() },
+                            modifier = Modifier
+                                .size(120.dp)
+                                .border(2.dp, BrushedCopper, RoundedCornerShape(100.dp))
+                                .padding(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (isMonitoring) Icons.Default.Pause else Icons.Default.PowerSettingsNew,
+                                contentDescription = "Power",
+                                tint = BrushedCopper,
+                                modifier = Modifier.size(48.dp)
+                            )
+                        }
+                        Text(
+                            text = if (isMonitoring) "STOP MONITORING" else "START MONITORING",
+                            color = BrushedCopper,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 16.dp)
+                        )
+                    }
                 }
-                Text(
-                    text = if (isMonitoring) "STOP MONITORING" else "START MONITORING",
-                    color = BrushedCopper,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-
-                Spacer(modifier = Modifier.height(48.dp))
 
                 // Sleep Actions Card
                 Column(modifier = Modifier.fillMaxWidth()) {
@@ -435,8 +436,6 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                             onCheckedChange = { viewModel.setDisconnectBluetooth(it) }
                         )
                     }
-                    // FIX: Extra bottom spacer so last row isn't obscured when not scrolled
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }
