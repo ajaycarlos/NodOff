@@ -87,14 +87,14 @@ fun AppPickerDialog(
                 TextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search apps...", color = LowContrastGrey, fontSize = 14.sp) },
+                    placeholder = { Text("Search apps...", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp) },
                     singleLine = true,
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFF1E1E1E),
-                        unfocusedContainerColor = Color(0xFF1E1E1E),
-                        disabledContainerColor = Color(0xFF1E1E1E),
-                        focusedTextColor = OffWhite,
-                        unfocusedTextColor = OffWhite,
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                         focusedIndicatorColor = BrushedCopper,
                         unfocusedIndicatorColor = Color.Transparent
                     ),
@@ -108,7 +108,7 @@ fun AppPickerDialog(
                 if (filteredApps.isEmpty()) {
                     Text(
                         text = "No apps found",
-                        color = LowContrastGrey,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 } else {
@@ -139,10 +139,10 @@ fun AppPickerDialog(
                                     Spacer(modifier = Modifier.width(16.dp))
                                 }
                                 
-                                // App Name (Clean Label only, no package name)
+                                // App Name
                                 Text(
                                     text = app.label,
-                                    color = OffWhite,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     fontWeight = FontWeight.Medium,
                                     modifier = Modifier.weight(1f)
                                 )
@@ -159,12 +159,12 @@ fun AppPickerDialog(
                                     },
                                     colors = CheckboxDefaults.colors(
                                         checkedColor = BrushedCopper,
-                                        uncheckedColor = LowContrastGrey,
-                                        checkmarkColor = OffWhite
+                                        uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        checkmarkColor = MaterialTheme.colorScheme.surface
                                     )
                                 )
                             }
-                            HorizontalDivider(color = Color(0xFF2A2A2A), thickness = 0.5.dp)
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 0.5.dp)
                         }
                     }
                 }
@@ -177,7 +177,7 @@ fun AppPickerDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("CANCEL", color = LowContrastGrey)
+                Text("CANCEL", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         },
         containerColor = MaterialTheme.colorScheme.surface,
@@ -206,7 +206,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
         AlertDialog(
             onDismissRequest = { showActivationDelayInfo = false },
             title = { Text(text = "Activation Delay", color = MaterialTheme.colorScheme.onSurface) },
-            text = { Text(text = "How many seconds your eyes must remain completely closed before the app triggers.", color = LowContrastGrey) },
+            text = { Text(text = "How many seconds your eyes must remain completely closed before the app triggers.", color = MaterialTheme.colorScheme.onSurfaceVariant) },
             confirmButton = {
                 TextButton(onClick = { showActivationDelayInfo = false }) {
                     Text(text = "OK", color = BrushedCopper)
@@ -224,7 +224,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
         AlertDialog(
             onDismissRequest = { showBatterySaverInfo = false },
             title = { Text(text = "Battery Saver Mode", color = MaterialTheme.colorScheme.onSurface) },
-            text = { Text(text = "How frequently the camera checks your eyes. Slower checks save battery but react slower.", color = LowContrastGrey) },
+            text = { Text(text = "How frequently the camera checks your eyes. Slower checks save battery but react slower.", color = MaterialTheme.colorScheme.onSurfaceVariant) },
             confirmButton = {
                 TextButton(onClick = { showBatterySaverInfo = false }) {
                     Text(text = "OK", color = BrushedCopper)
@@ -242,7 +242,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
         AlertDialog(
             onDismissRequest = { showFaceLostTimeoutInfo = false },
             title = { Text(text = "Face Absence Timeout", color = MaterialTheme.colorScheme.onSurface) },
-            text = { Text(text = "If the camera cannot detect a face at all (e.g., phone falls face down) for this duration, it will trigger the sleep actions.", color = LowContrastGrey) },
+            text = { Text(text = "If the camera cannot detect a face at all (e.g., phone falls face down) for this duration, it will trigger the sleep actions.", color = MaterialTheme.colorScheme.onSurfaceVariant) },
             confirmButton = {
                 TextButton(onClick = { showFaceLostTimeoutInfo = false }) {
                     Text(text = "OK", color = BrushedCopper)
@@ -311,12 +311,12 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                             Icon(
                                 imageVector = Icons.Default.Info,
                                 contentDescription = "Info",
-                                tint = LowContrastGrey,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
                     }
-                    Text(text = "Time before restorative alert triggers.", color = LowContrastGrey, fontSize = 12.sp)
+                    Text(text = "Time before restorative alert triggers.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                     var sliderValue by remember(eyeCloseDelayFlow) { mutableStateOf(eyeCloseDelayFlow) }
                     Slider(
                         value = sliderValue,
@@ -330,9 +330,9 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                         )
                     )
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(text = "3S", color = LowContrastGrey, fontSize = 10.sp)
-                        Text(text = "${sliderValue.toInt()}S", color = LowContrastGrey, fontSize = 10.sp)
-                        Text(text = "60S", color = LowContrastGrey, fontSize = 10.sp)
+                        Text(text = "3S", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
+                        Text(text = "${sliderValue.toInt()}S", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
+                        Text(text = "60S", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -353,12 +353,12 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                             Icon(
                                 imageVector = Icons.Default.Info,
                                 contentDescription = "Info",
-                                tint = LowContrastGrey,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
                     }
-                    Text(text = "Time before trigger if no face is detected.", color = LowContrastGrey, fontSize = 12.sp)
+                    Text(text = "Time before trigger if no face is detected.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                     Slider(
                         value = faceLostTimeoutMinutes.toFloat(),
                         onValueChange = { faceLostTimeoutMinutes = it.toInt() },
@@ -371,13 +371,13 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                         )
                     )
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(text = "1 min", color = LowContrastGrey, fontSize = 10.sp)
+                        Text(text = "1 min", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
                         Text(
                             text = if (faceLostTimeoutMinutes == 1) "1 min" else "$faceLostTimeoutMinutes mins",
-                            color = LowContrastGrey,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 10.sp
                         )
-                        Text(text = "10 mins", color = LowContrastGrey, fontSize = 10.sp)
+                        Text(text = "10 mins", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
@@ -398,7 +398,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                             Icon(
                                 imageVector = Icons.Default.Info,
                                 contentDescription = "Info",
-                                tint = LowContrastGrey,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -425,7 +425,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                             Icon(
                                 imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                                 contentDescription = "Dropdown",
-                                tint = LowContrastGrey
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         
@@ -458,7 +458,7 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                     Spacer(modifier = Modifier.height(12.dp))
                     
                     if (automationApps.isEmpty()) {
-                        Text(text = "No apps selected", color = LowContrastGrey, fontSize = 12.sp)
+                        Text(text = "No apps selected", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                     } else {
                         Row(
                             modifier = Modifier

@@ -47,7 +47,7 @@ fun EventItem(event: EventEntity) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = formatTimestamp(event.timestamp),
-                    color = LowContrastGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp
                 )
             }
@@ -98,7 +98,7 @@ fun HistoryScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                 ) {
                     Text(
                         text = "No sleep actions triggered yet.",
-                        color = LowContrastGrey,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 14.sp,
                         textAlign = TextAlign.Center
                     )

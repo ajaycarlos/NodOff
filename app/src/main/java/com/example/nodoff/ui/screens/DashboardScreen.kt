@@ -106,7 +106,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                 Text(
                     text = "NodOff requires Device Admin rights strictly to use the screen-lock feature. We do not access or modify any other administrative data.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = LowContrastGrey
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             },
             confirmButton = {
@@ -136,7 +136,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
             dismissButton = {
                 TextButton(
                     onClick = { showScreenLockDialog = false },
-                    colors = ButtonDefaults.textButtonColors(contentColor = LowContrastGrey)
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
                 ) {
                     Text(
                         text = "Cancel",
@@ -156,7 +156,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
         AlertDialog(
             onDismissRequest = { showAboutDialog = false },
             title = { Text(text = "About NodOff", color = MaterialTheme.colorScheme.onSurface) },
-            text = { Text(text = "NodOff is a premium background sleep monitoring tool designed to assist with restorative sleep by managing active device operations.", color = LowContrastGrey) },
+            text = { Text(text = "NodOff is a premium background sleep monitoring tool designed to assist with restorative sleep by managing active device operations.", color = MaterialTheme.colorScheme.onSurfaceVariant) },
             confirmButton = {
                 TextButton(onClick = { showAboutDialog = false }) {
                     Text(text = "OK", color = BrushedCopper)
@@ -175,7 +175,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
         AlertDialog(
             onDismissRequest = { showPrivacyDialog = false },
             title = { Text(text = "Privacy Policy", color = MaterialTheme.colorScheme.onSurface) },
-            text = { Text(text = "NodOff operates 100% offline. Face classification and eye tracking are performed entirely on-device using local machine learning models. Your camera feed, video, and personal data are never recorded, saved, or transmitted to any server.", color = LowContrastGrey) },
+            text = { Text(text = "NodOff operates 100% offline. Face classification and eye tracking are performed entirely on-device using local machine learning models. Your camera feed, video, and personal data are never recorded, saved, or transmitted to any server.", color = MaterialTheme.colorScheme.onSurfaceVariant) },
             confirmButton = {
                 TextButton(onClick = { showPrivacyDialog = false }) {
                     Text(text = "OK", color = BrushedCopper)
@@ -194,7 +194,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
         AlertDialog(
             onDismissRequest = { showBugDialog = false },
             title = { Text(text = "Report a Bug", color = MaterialTheme.colorScheme.onSurface) },
-            text = { Text(text = "To report a bug, please contact support@nodoff.example.com or visit our GitHub repository.", color = LowContrastGrey) },
+            text = { Text(text = "To report a bug, please contact support@nodoff.example.com or visit our GitHub repository.", color = MaterialTheme.colorScheme.onSurfaceVariant) },
             confirmButton = {
                 TextButton(onClick = { showBugDialog = false }) {
                     Text(text = "OK", color = BrushedCopper)
@@ -327,7 +327,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                 NodOffCard(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = "SYSTEM STATE",
-                        color = LowContrastGrey,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 10.sp,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
@@ -353,8 +353,8 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = "FREQ: 12.3Hz", color = LowContrastGrey, fontSize = 10.sp)
-                        Text(text = "CONF: 98.8%", color = LowContrastGrey, fontSize = 10.sp)
+                        Text(text = "FREQ: 12.3Hz", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
+                        Text(text = "CONF: 98.8%", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
                     }
                 }
 
@@ -394,7 +394,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = "SLEEP ACTIONS",
-                        color = LowContrastGrey,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )

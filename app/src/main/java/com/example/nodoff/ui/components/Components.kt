@@ -83,12 +83,12 @@ fun ProtocolItem(
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(text = title, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Medium)
-                Text(text = subtitle, color = LowContrastGrey, fontSize = 10.sp)
+                Text(text = subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
             }
         }
         Text(
             text = if (isGranted) "GRANTED" else "GRANT",
-            color = if (isGranted) LowContrastGrey else BrushedCopper,
+            color = if (isGranted) MaterialTheme.colorScheme.onSurfaceVariant else BrushedCopper,
             fontWeight = FontWeight.Bold,
             fontSize = 12.sp,
             modifier = if (isGranted) Modifier else Modifier.clickable { onGrantClick() }
@@ -109,7 +109,7 @@ fun ActionToggle(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null, tint = LowContrastGrey, modifier = Modifier.size(20.dp))
+            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(12.dp))
             Text(text = title, color = MaterialTheme.colorScheme.onSurface)
         }
@@ -130,7 +130,7 @@ fun ActionToggle(
 fun SettingSectionHeader(text: String) {
     Text(
         text = text,
-        color = LowContrastGrey,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         style = MaterialTheme.typography.labelSmall,
         modifier = Modifier.padding(bottom = 12.dp)
     )
@@ -149,7 +149,7 @@ fun AppChip(name: String, onRemoveClick: () -> Unit) {
         Icon(
             imageVector = Icons.Default.Close,
             contentDescription = "Remove",
-            tint = LowContrastGrey,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier
                 .size(12.dp)
                 .clickable { onRemoveClick() }
@@ -180,7 +180,7 @@ fun SegmentedButton(
             ) {
                 Text(
                     text = option,
-                    color = if (index == selectedIndex) OffWhite else MaterialTheme.colorScheme.onSurface,
+                    color = if (index == selectedIndex) Color.White else MaterialTheme.colorScheme.onSurface,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -215,8 +215,8 @@ fun BottomNavBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = BrushedCopper,
                     selectedTextColor = BrushedCopper,
-                    unselectedIconColor = LowContrastGrey,
-                    unselectedTextColor = LowContrastGrey,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     indicatorColor = Color.Transparent
                 )
             )

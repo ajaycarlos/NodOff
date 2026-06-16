@@ -16,8 +16,8 @@ android {
         applicationId = "com.example.nodoff"
         minSdk = 24
         targetSdk = 36
-        versionCode = 16
-        versionName = "2.5"
+        versionCode = 18
+        versionName = "2.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.datastore.preferences)
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.6.0")
 
     // CameraX and ML Kit Face Detection
     implementation(libs.androidx.camera.camera2)

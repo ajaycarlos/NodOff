@@ -76,7 +76,7 @@ fun PermissionExplanationDialog(
                 text = title.uppercase(),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = OffWhite,
+                color = MaterialTheme.colorScheme.onSurface,
                 letterSpacing = 1.sp
             )
         },
@@ -84,7 +84,7 @@ fun PermissionExplanationDialog(
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium,
-                color = LowContrastGrey
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
         confirmButton = {
@@ -102,7 +102,7 @@ fun PermissionExplanationDialog(
         dismissButton = {
             TextButton(
                 onClick = onDismiss,
-                colors = ButtonDefaults.textButtonColors(contentColor = LowContrastGrey)
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
             ) {
                 Text(
                     text = "CANCEL",
@@ -111,9 +111,9 @@ fun PermissionExplanationDialog(
                 )
             }
         },
-        containerColor = Color(0xEE1A1D1E),
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.border(1.dp, Color(0xFF333333), RoundedCornerShape(16.dp))
+        modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
     )
 }
 
@@ -225,7 +225,7 @@ fun OnboardingScreen(onNavigateToDashboard: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "NodOff",
-                color = OffWhite,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = 2.sp
@@ -236,7 +236,7 @@ fun OnboardingScreen(onNavigateToDashboard: () -> Unit) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = "REQUIRED PROTOCOLS",
-                color = LowContrastGrey,
+                color = MaterialTheme.colorScheme.onBackground,
                 style = MaterialTheme.typography.labelSmall,
                 letterSpacing = 1.sp,
                 modifier = Modifier.padding(bottom = 8.dp)
