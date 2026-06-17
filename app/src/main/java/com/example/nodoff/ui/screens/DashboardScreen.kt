@@ -405,7 +405,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                             checked = pauseMedia,
                             onCheckedChange = { viewModel.setPauseMedia(it) }
                         )
-                        HorizontalDivider(color = Color(0xFF2A2A2A), modifier = Modifier.padding(vertical = 12.dp))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(vertical = 12.dp))
                         ActionToggle(
                             title = "Turn Off Screen",
                             icon = Icons.Default.Smartphone,
@@ -428,7 +428,7 @@ fun DashboardScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                                 }
                             }
                         )
-                        HorizontalDivider(color = Color(0xFF2A2A2A), modifier = Modifier.padding(vertical = 12.dp))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(vertical = 12.dp))
                         ActionToggle(
                             title = "Disconnect Bluetooth",
                             icon = Icons.Default.BluetoothDisabled,

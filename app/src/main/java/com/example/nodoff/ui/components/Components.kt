@@ -180,7 +180,7 @@ fun SegmentedButton(
             ) {
                 Text(
                     text = option,
-                    color = if (index == selectedIndex) Color.White else MaterialTheme.colorScheme.onSurface,
+                    color = if (index == selectedIndex) OffWhite else MaterialTheme.colorScheme.onSurface,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold
                 )

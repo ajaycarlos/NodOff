@@ -8,11 +8,6 @@ import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
@@ -48,82 +43,74 @@ class MainActivity : ComponentActivity() {
                 else -> isSystemDark // System
             }
 
-            AnimatedContent(
-                targetState = darkTheme,
-                transitionSpec = {
-                    fadeIn(animationSpec = tween(500)) togetherWith fadeOut(animationSpec = tween(500))
-                },
-                label = "theme_transition"
-            ) { isDark ->
-                NodOffTheme(darkTheme = isDark) {
-                    val context = LocalContext.current
-                    
-                    fun hasRequiredPermissions(): Boolean {
-                        val hasCamera = ContextCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.CAMERA
-                        ) == PackageManager.PERMISSION_GRANTED
+            NodOffTheme(darkTheme = darkTheme) {
+                val context = LocalContext.current
 
-                        val enabledListeners = Settings.Secure.getString(
-                            context.contentResolver,
-                            "enabled_notification_listeners"
-                        )
-                        val hasNotification = enabledListeners != null && enabledListeners.split(":").any {
-                            val componentName = android.content.ComponentName.unflattenFromString(it)
-                            componentName != null && componentName.packageName == context.packageName
-                        }
+                fun hasRequiredPermissions(): Boolean {
+                    val hasCamera = ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.CAMERA
+                    ) == PackageManager.PERMISSION_GRANTED
 
-                        return hasCamera && hasNotification
+                    val enabledListeners = Settings.Secure.getString(
+                        context.contentResolver,
+                        "enabled_notification_listeners"
+                    )
+                    val hasNotification = enabledListeners != null && enabledListeners.split(":").any {
+                        val componentName = android.content.ComponentName.unflattenFromString(it)
+                        componentName != null && componentName.packageName == context.packageName
                     }
 
-                    var currentScreen by remember {
-                        mutableStateOf(
-                            if (hasRequiredPermissions()) Screen.DASHBOARD else Screen.ONBOARDING
+                    return hasCamera && hasNotification
+                }
+
+                var currentScreen by remember {
+                    mutableStateOf(
+                        if (hasRequiredPermissions()) Screen.DASHBOARD else Screen.ONBOARDING
+                    )
+                }
+
+                when (currentScreen) {
+                    Screen.ONBOARDING -> {
+                        OnboardingScreen(
+                            onNavigateToDashboard = { currentScreen = Screen.DASHBOARD }
                         )
                     }
-
-                    when (currentScreen) {
-                        Screen.ONBOARDING -> {
-                            OnboardingScreen(
-                                onNavigateToDashboard = { currentScreen = Screen.DASHBOARD }
-                            )
-                        }
-                        Screen.DASHBOARD -> {
-                            DashboardScreen(
-                                viewModel = viewModel,
-                                onNavigate = { tabIndex ->
-                                    when (tabIndex) {
-                                        0 -> currentScreen = Screen.DASHBOARD
-                                        1 -> currentScreen = Screen.HISTORY
-                                        2 -> currentScreen = Screen.SETTINGS
-                                    }
+                    Screen.DASHBOARD -> {
+                        DashboardScreen(
+                            viewModel = viewModel,
+                            onNavigate = { tabIndex ->
+                                when (tabIndex) {
+                                    0 -> currentScreen = Screen.DASHBOARD
+                                    1 -> currentScreen = Screen.HISTORY
+                                    2 -> currentScreen = Screen.SETTINGS
                                 }
-                            )
-                        }
-                        Screen.HISTORY -> {
-                            HistoryScreen(
-                                viewModel = viewModel,
-                                onNavigate = { tabIndex ->
-                                    when (tabIndex) {
-                                        0 -> currentScreen = Screen.DASHBOARD
-                                        1 -> currentScreen = Screen.HISTORY
-                                        2 -> currentScreen = Screen.SETTINGS
-                                    }
+                            }
+                        )
+                    }
+                    Screen.HISTORY -> {
+                        HistoryScreen(
+                            viewModel = viewModel,
+                            onNavigate = { tabIndex ->
+                                when (tabIndex) {
+                                    0 -> currentScreen = Screen.DASHBOARD
+                                    1 -> currentScreen = Screen.HISTORY
+                                    2 -> currentScreen = Screen.SETTINGS
                                 }
-                            )
-                        }
-                        Screen.SETTINGS -> {
-                            SettingsScreen(
-                                viewModel = viewModel,
-                                onNavigate = { tabIndex ->
-                                    when (tabIndex) {
-                                        0 -> currentScreen = Screen.DASHBOARD
-                                        1 -> currentScreen = Screen.HISTORY
-                                        2 -> currentScreen = Screen.SETTINGS
-                                    }
+                            }
+                        )
+                    }
+                    Screen.SETTINGS -> {
+                        SettingsScreen(
+                            viewModel = viewModel,
+                            onNavigate = { tabIndex ->
+                                when (tabIndex) {
+                                    0 -> currentScreen = Screen.DASHBOARD
+                                    1 -> currentScreen = Screen.HISTORY
+                                    2 -> currentScreen = Screen.SETTINGS
                                 }
-                            )
-                        }
+                            }
+                        )
                     }
                 }
             }
