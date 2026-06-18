@@ -23,7 +23,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
@@ -252,7 +251,7 @@ fun OnboardingScreen(onNavigateToDashboard: () -> Unit) {
                         showCameraExplanation = true
                     }
                 )
-                Divider(color = Color(0xFF2A2A2A), thickness = 1.dp, modifier = Modifier.padding(vertical = 12.dp))
+                Divider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp, modifier = Modifier.padding(vertical = 12.dp))
                 ProtocolItem(
                     icon = Icons.Default.Security,
                     title = "Notification Listener",
@@ -262,7 +261,7 @@ fun OnboardingScreen(onNavigateToDashboard: () -> Unit) {
                         showNotificationExplanation = true
                     }
                 )
-                Divider(color = Color(0xFF2A2A2A), thickness = 1.dp, modifier = Modifier.padding(vertical = 12.dp))
+                Divider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp, modifier = Modifier.padding(vertical = 12.dp))
                 ProtocolItem(
                     icon = Icons.Default.Lock,
                     title = "Device Admin (Optional)",

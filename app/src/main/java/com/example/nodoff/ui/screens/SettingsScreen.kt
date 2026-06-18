@@ -192,7 +192,6 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
     val eyeCloseDelayFlow by viewModel.eyeCloseDelay.collectAsState()
     val pollingRateFlow by viewModel.pollingRate.collectAsState()
     val automationApps by viewModel.automationApps.collectAsState()
-    val themePreference by viewModel.themePreference.collectAsState()
     val faceLostTimeoutSecondsFlow by viewModel.faceLostTimeoutSeconds.collectAsState()
 
     var faceLostTimeoutMinutes by remember(faceLostTimeoutSecondsFlow) { mutableStateOf(faceLostTimeoutSecondsFlow / 60) }
@@ -483,19 +482,6 @@ fun SettingsScreen(viewModel: MainViewModel, onNavigate: (Int) -> Unit) {
                     )
                 }
                 Spacer(modifier = Modifier.height(32.dp))
-            }
-
-            item { SettingSectionHeader("APPEARANCE") }
-            item {
-                NodOffCard {
-                    Text(text = "Theme", color = MaterialTheme.colorScheme.onSurface)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    SegmentedButton(
-                        options = listOf("SYSTEM", "LIGHT", "DARK"),
-                        selectedIndex = themePreference,
-                        onSelectedIndexChange = { viewModel.setThemePreference(it) }
-                    )
-                }
             }
         }
     }

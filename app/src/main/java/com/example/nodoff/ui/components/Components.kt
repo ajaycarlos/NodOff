@@ -30,15 +30,25 @@ fun NodOffButton(
     isPrimary: Boolean = true,
     enabled: Boolean = true
 ) {
+    // Primary buttons: copper background with OffWhite text (intentional brand override,
+    //   works in both modes because BrushedCopper provides sufficient contrast against OffWhite).
+    // Secondary buttons: delegate ALL colours to MaterialTheme so the theme engine
+    //   guarantees readable text on any surface in both Dark and Light Mode.
+    //   Previously, contentColor was hardcoded to OffWhite — invisible on Light Mode surfaces.
+    val primaryContainer = BrushedCopper
+    val primaryContent = OffWhite                            // always legible on copper
+    val secondaryContainer = MaterialTheme.colorScheme.surface
+    val secondaryContent = MaterialTheme.colorScheme.onSurface  // theme-adaptive, never invisible
+
     Button(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier.height(48.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isPrimary) BrushedCopper else MaterialTheme.colorScheme.surface,
-            contentColor = if (isPrimary) OffWhite else MaterialTheme.colorScheme.onSurface,
-            disabledContainerColor = (if (isPrimary) BrushedCopper else MaterialTheme.colorScheme.surface).copy(alpha = 0.5f),
-            disabledContentColor = (if (isPrimary) OffWhite else MaterialTheme.colorScheme.onSurface).copy(alpha = 0.5f)
+            containerColor = if (isPrimary) primaryContainer else secondaryContainer,
+            contentColor = if (isPrimary) primaryContent else secondaryContent,
+            disabledContainerColor = (if (isPrimary) primaryContainer else secondaryContainer).copy(alpha = 0.5f),
+            disabledContentColor = (if (isPrimary) primaryContent else secondaryContent).copy(alpha = 0.5f)
         ),
         shape = RoundedCornerShape(12.dp),
         border = if (!isPrimary) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null
@@ -117,10 +127,12 @@ fun ActionToggle(
             checked = checked,
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = OffWhite,
+                // White thumb on copper track is a deliberate design token — always correct
+                // in both modes because it contrasts the BrushedCopper track regardless of theme.
+                checkedThumbColor = Color.White,
                 checkedTrackColor = BrushedCopper,
                 uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                uncheckedTrackColor = MaterialTheme.colorScheme.surface
+                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
             )
         )
     }

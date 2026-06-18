@@ -16,8 +16,8 @@ android {
         applicationId = "com.example.nodoff"
         minSdk = 24
         targetSdk = 36
-        versionCode = 22
-        versionName = "3.1"
+        versionCode = 24
+        versionName = "3.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

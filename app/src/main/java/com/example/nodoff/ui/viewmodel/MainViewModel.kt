@@ -85,11 +85,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         initialValue = emptySet()
     )
 
-    val themePreference: StateFlow<Int> = repository.themePreferenceFlow.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = 0
-    )
 
     val faceLostTimeoutSeconds: StateFlow<Int> = repository.faceLostTimeoutSecondsFlow.stateIn(
         scope = viewModelScope,
@@ -168,11 +163,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }.distinctBy { it.packageName }.sortedBy { it.label }
     }
 
-    fun setThemePreference(value: Int) {
-        viewModelScope.launch {
-            repository.setThemePreference(value)
-        }
-    }
 
     fun setFaceLostTimeoutSeconds(value: Int) {
         viewModelScope.launch {

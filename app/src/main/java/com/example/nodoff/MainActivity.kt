@@ -8,7 +8,6 @@ import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
@@ -35,41 +34,39 @@ class MainActivity : ComponentActivity() {
         val viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         setContent {
-            val themePreference by viewModel.themePreference.collectAsState()
-            val isSystemDark = isSystemInDarkTheme()
-            val darkTheme = when (themePreference) {
-                1 -> false // Light
-                2 -> true  // Dark
-                else -> isSystemDark // System
+
+            // ── Navigation state ─────────────────────────────────────────────────────
+            // Hoisted ABOVE NodOffTheme so that a theme recomposition (e.g. the user
+            // switching Light ↔ Dark in Settings) cannot reset currentScreen and
+            // inadvertently trigger CompositionLocal tearing in child composables.
+            val context = LocalContext.current
+
+            fun hasRequiredPermissions(): Boolean {
+                val hasCamera = ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.CAMERA
+                ) == PackageManager.PERMISSION_GRANTED
+
+                val enabledListeners = Settings.Secure.getString(
+                    context.contentResolver,
+                    "enabled_notification_listeners"
+                )
+                val hasNotification = enabledListeners != null && enabledListeners.split(":").any {
+                    val componentName = android.content.ComponentName.unflattenFromString(it)
+                    componentName != null && componentName.packageName == context.packageName
+                }
+
+                return hasCamera && hasNotification
             }
 
-            NodOffTheme(darkTheme = darkTheme) {
-                val context = LocalContext.current
+            // remember is now in the setContent scope — survives NodOffTheme rebuilds.
+            var currentScreen by remember {
+                mutableStateOf(
+                    if (hasRequiredPermissions()) Screen.DASHBOARD else Screen.ONBOARDING
+                )
+            }
 
-                fun hasRequiredPermissions(): Boolean {
-                    val hasCamera = ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.CAMERA
-                    ) == PackageManager.PERMISSION_GRANTED
-
-                    val enabledListeners = Settings.Secure.getString(
-                        context.contentResolver,
-                        "enabled_notification_listeners"
-                    )
-                    val hasNotification = enabledListeners != null && enabledListeners.split(":").any {
-                        val componentName = android.content.ComponentName.unflattenFromString(it)
-                        componentName != null && componentName.packageName == context.packageName
-                    }
-
-                    return hasCamera && hasNotification
-                }
-
-                var currentScreen by remember {
-                    mutableStateOf(
-                        if (hasRequiredPermissions()) Screen.DASHBOARD else Screen.ONBOARDING
-                    )
-                }
-
+            NodOffTheme {
                 when (currentScreen) {
                     Screen.ONBOARDING -> {
                         OnboardingScreen(
